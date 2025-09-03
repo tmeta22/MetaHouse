@@ -6,6 +6,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext'
 import { DataProvider } from '@/contexts/DataContext'
 import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -57,6 +58,7 @@ export default function RootLayout({
             </DataProvider>
           </ServiceWorkerProvider>
         </ThemeProvider>
+        <Toaster />
         <Analytics />
       </body>
     </html>

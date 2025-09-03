@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Database, Cloud, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Database, Cloud, CheckCircle, AlertCircle, Loader2, Trash2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 interface DatabaseConfig {
@@ -18,17 +18,20 @@ interface DatabaseConfig {
 }
 
 export function DatabaseSettings() {
+  const { toast } = useToast()
+  const [currentDb, setCurrentDb] = useState('Local SQLite')
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected')
+  const [isConnecting, setIsConnecting] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [config, setConfig] = useState<DatabaseConfig>({
     type: 'sqlite',
     url: '',
     name: 'Local SQLite'
   })
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected')
-  const [currentDb, setCurrentDb] = useState<string>('Local SQLite')
-  const { toast } = useToast()
+  const [isFormatting, setIsFormatting] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     // Load current database configuration
     loadCurrentConfig()
   }, [])
@@ -93,6 +96,8 @@ export function DatabaseSettings() {
   }
 
   const saveConnection = async () => {
+    if (!mounted) return
+    
     if (connectionStatus !== 'connected') {
       toast({
         title: 'Test Connection First',
@@ -113,10 +118,8 @@ export function DatabaseSettings() {
         setCurrentDb(config.name || config.type)
         toast({
           title: 'Database Updated',
-          description: 'Database connection has been saved successfully.'
+          description: 'Database connection has been saved successfully. Please refresh the page to use the new database.'
         })
-        // Trigger a page reload to use the new database
-        window.location.reload()
       } else {
         throw new Error('Failed to save configuration')
       }
@@ -126,6 +129,57 @@ export function DatabaseSettings() {
         description: 'Failed to save database configuration.',
         variant: 'destructive'
       })
+    }
+  }
+
+  const formatDatabase = async () => {
+    if (!mounted) return
+    
+    const confirmed = window.confirm(
+      'Are you sure you want to format the database? This will permanently delete ALL data including tasks, schedules, family members, transactions, and settings. This action cannot be undone.'
+    )
+    
+    if (!confirmed) return
+    
+    const doubleConfirmed = window.confirm(
+      'This is your final warning! All data will be permanently lost. Are you absolutely sure you want to proceed?'
+    )
+    
+    if (!doubleConfirmed) return
+
+    setIsFormatting(true)
+    try {
+      const response = await fetch('/api/database/format', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        toast({
+          title: 'Database Formatted',
+          description: 'All data has been successfully deleted. The database has been reset to its initial state.'
+        })
+        // Reload the page to reflect the changes
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      } else {
+        toast({
+          title: 'Format Failed',
+          description: result.error || 'Failed to format database.',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Format Error',
+        description: 'An error occurred while formatting the database.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsFormatting(false)
     }
   }
 
@@ -273,6 +327,53 @@ export function DatabaseSettings() {
                 Save & Apply
               </Button>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-200 bg-red-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-700 font-semibold">
+            <Trash2 className="h-5 w-5" />
+            Format Database
+          </CardTitle>
+          <CardDescription>
+            Permanently delete all data from the database. This action cannot be undone.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert className="border-red-300 bg-red-100">
+            <AlertCircle className="h-4 w-4 text-red-700" />
+            <AlertDescription className="text-red-900 font-medium">
+              <strong>Warning:</strong> This will permanently delete all your data including:
+              <ul className="mt-2 ml-4 list-disc space-y-1">
+                <li>All family members and their information</li>
+                <li>All tasks and schedules</li>
+                <li>All financial transactions and subscriptions</li>
+                <li>All settings and preferences</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+          
+          <div className="flex justify-end">
+            <Button
+              variant="destructive"
+              onClick={formatDatabase}
+              disabled={isFormatting}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-red-600 hover:border-red-700"
+            >
+              {isFormatting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Formatting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Format Database
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -117,8 +117,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const initData = async () => {
       try {
         setIsLoading(true)
-        // Initialize database via API
-        await fetch('/api/init', { method: 'POST' })
+        // Only initialize database if no data exists
+        const tasksCheck = await fetch('/api/tasks')
+        const tasksData = await tasksCheck.json()
+        
+        if (!Array.isArray(tasksData) || tasksData.length === 0) {
+          // Initialize database via API only if no data exists
+          await fetch('/api/init', { method: 'POST' })
+        }
+        
         await refreshData()
       } catch (error) {
         console.error('Failed to initialize database:', error)
@@ -149,13 +156,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
         transactionsRes.json()
       ])
       
-      setTasks(tasksData)
-      setEvents(eventsData)
-      setSubscriptions(subscriptionsData)
-      setFamilyMembers(familyMembersData)
-      setTransactions(transactionsData)
+      setTasks(Array.isArray(tasksData) ? tasksData : [])
+      setEvents(Array.isArray(eventsData) ? eventsData : [])
+      setSubscriptions(Array.isArray(subscriptionsData) ? subscriptionsData : [])
+      setFamilyMembers(Array.isArray(familyMembersData) ? familyMembersData : [])
+      setTransactions(Array.isArray(transactionsData) ? transactionsData : [])
     } catch (error) {
       console.error('Failed to refresh data:', error)
+      // Set empty arrays as fallback to prevent infinite loading
+      setTasks([])
+      setEvents([])
+      setSubscriptions([])
+      setFamilyMembers([])
+      setTransactions([])
     }
   }, [])
 

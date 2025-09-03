@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, CreditCard, Users, CheckSquare, Bell, Home, Clock, User, DollarSign, BarChart3, FileText, TrendingUp, Activity, Target, Download, Mail, Settings, MapPin } from "lucide-react"
+import { Calendar, CreditCard, Users, CheckSquare, Bell, Home, Clock, User, DollarSign, BarChart3, FileText, TrendingUp, Activity, Target, Download, Mail, Settings, MapPin, Database, Palette, Shield, Menu } from "lucide-react"
 import ScheduleCalendar from "@/components/schedule-calendar"
 import SubscriptionTracker from "@/components/subscription-tracker"
 import TransactionTracker from "@/components/transaction-tracker"
@@ -20,6 +21,9 @@ import NotificationCenter from "@/components/NotificationCenter"
 import TestPushNotificationButton from "@/components/TestPushNotificationButton"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { DatabaseSettings } from "@/components/database-settings"
+import { NotificationSettings } from "@/components/notification-settings"
+import { AppearanceSettings } from "@/components/appearance-settings"
+import { PrivacySettings } from "@/components/privacy-settings"
 import { useNotifications, createScheduleReminder, createSubscriptionAlert, createTaskReminder, createFamilyUpdate } from "@/contexts/NotificationContext"
 import { useData } from "@/contexts/DataContext"
 
@@ -31,9 +35,40 @@ export default function FamilyHubDashboard() {
   const [showManageFamilyModal, setShowManageFamilyModal] = useState(false)
   const [showEditMemberModal, setShowEditMemberModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  // Form state hooks - moved to top to fix hooks ordering
+  const [newTask, setNewTask] = useState({
+    title: "",
+    assignee: "",
+    dueDate: "",
+    priority: "medium"
+  })
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    date: "",
+    time: "",
+    member: "",
+    category: "personal",
+    description: ""
+  })
+  const [newSubscription, setNewSubscription] = useState({
+    name: "",
+    cost: 0,
+    billingCycle: "monthly",
+    category: "entertainment",
+    status: "active",
+    nextPayment: "",
+    website: "",
+    description: ""
+  })
+  const [newMember, setNewMember] = useState({ name: "", role: "", email: "" })
+  const [editingMember, setEditingMember] = useState({ index: -1, name: "", role: "", email: "" })
+  const [deletingMemberIndex, setDeletingMemberIndex] = useState(-1)
   
   // Use shared data context
   const { 
+    isLoading,
     tasks, addTask, updateTask, deleteTask,
     events, addEvent, updateEvent, deleteEvent,
     subscriptions, addSubscription, updateSubscription, deleteSubscription,
@@ -41,6 +76,29 @@ export default function FamilyHubDashboard() {
     transactions, addTransaction, updateTransaction, deleteTransaction,
     refreshData
   } = useData()
+  
+  const { addNotification } = useNotifications()
+
+  // Add sample notifications on component mount
+  React.useEffect(() => {
+    // Add some sample notifications to demonstrate functionality
+    addNotification(createScheduleReminder("Team Meeting", new Date(Date.now() + 30 * 60 * 1000))) // 30 minutes from now
+    addNotification(createSubscriptionAlert("Netflix", 15.99, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000))) // 3 days from now
+    addNotification(createTaskReminder("Buy groceries", "Family", new Date(Date.now() + 2 * 60 * 60 * 1000))) // 2 hours from now
+    addNotification(createFamilyUpdate("John", "completed their homework"))
+  }, [])
+
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading Family Hub...</p>
+        </div>
+      </div>
+    )
+  }
 
   // Chart data for analytics
   const monthlyExpenseData = [
@@ -239,43 +297,6 @@ Family Hub
       priority: 'medium'
     })
   }
-  const [newTask, setNewTask] = useState({
-    title: "",
-    assignee: "",
-    dueDate: "",
-    priority: "medium"
-  })
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    date: "",
-    time: "",
-    member: "",
-    category: "personal",
-    description: ""
-  })
-  const [newSubscription, setNewSubscription] = useState({
-    name: "",
-    cost: 0,
-    billingCycle: "monthly",
-    category: "entertainment",
-    status: "active",
-    nextPayment: "",
-    website: "",
-    description: ""
-  })
-  const [newMember, setNewMember] = useState({ name: "", role: "", email: "" })
-  const [editingMember, setEditingMember] = useState({ index: -1, name: "", role: "", email: "" })
-  const [deletingMemberIndex, setDeletingMemberIndex] = useState(-1)
-  const { addNotification } = useNotifications()
-
-  // Add sample notifications on component mount
-  React.useEffect(() => {
-    // Add some sample notifications to demonstrate functionality
-    addNotification(createScheduleReminder("Team Meeting", new Date(Date.now() + 30 * 60 * 1000))) // 30 minutes from now
-    addNotification(createSubscriptionAlert("Netflix", 15.99, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000))) // 3 days from now
-    addNotification(createTaskReminder("Buy groceries", "Family", new Date(Date.now() + 2 * 60 * 60 * 1000))) // 2 hours from now
-    addNotification(createFamilyUpdate("John", "completed their homework"))
-  }, [])
 
   // Get today's events from the shared context
   const todaysEvents = events
@@ -311,12 +332,12 @@ Family Hub
         return <PlanningPage />
       case "financial":
         return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold">Financial Management</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-bold">Financial Management</h2>
             <Tabs defaultValue="subscriptions" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-                <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 h-auto">
+                <TabsTrigger value="subscriptions" className="text-sm py-2">Subscriptions</TabsTrigger>
+                <TabsTrigger value="transactions" className="text-sm py-2">Transactions</TabsTrigger>
               </TabsList>
               <TabsContent value="subscriptions">
                 <SubscriptionTracker />
@@ -329,13 +350,13 @@ Family Hub
         )
       case "family":
         return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold">Family Management</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-bold">Family Management</h2>
             <Tabs defaultValue="members" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="members">Family Members</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="reports">Reports</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 h-auto">
+                <TabsTrigger value="members" className="text-xs sm:text-sm py-2">Members</TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs sm:text-sm py-2">Analytics</TabsTrigger>
+                <TabsTrigger value="reports" className="text-xs sm:text-sm py-2">Reports</TabsTrigger>
               </TabsList>
               <TabsContent value="members">
                 <div className="space-y-6">
@@ -358,7 +379,7 @@ Family Hub
                           <p className="text-muted-foreground">{member.role}</p>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-4">
+                          <div className="space-y-3 sm:space-y-4">
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-muted-foreground">Active Tasks</span>
                               <Badge variant="secondary">{member.tasks}</Badge>
@@ -692,7 +713,7 @@ Family Hub
                       { task: "Clean garage", assignee: "Family", due: "This weekend", priority: "low" },
                       { task: "Prepare for school presentation", assignee: "Alex", due: "Friday", priority: "high" },
                     ].map((task, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 gap-2 sm:gap-0">
                         <div className="flex items-center space-x-3">
                           <input type="checkbox" className="rounded" />
                           <div>
@@ -766,9 +787,57 @@ Family Hub
         )
       case "settings":
         return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold">Settings</h2>
-            <DatabaseSettings />
+          <div className="container mx-auto p-6 max-w-4xl">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                <Settings className="h-8 w-8" />
+                Settings
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Manage your Family Hub application settings and preferences.
+              </p>
+            </div>
+
+            <Tabs defaultValue="database" className="space-y-4 sm:space-y-6">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+                <TabsTrigger value="database" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Database className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Database</span>
+                  <span className="sm:hidden">DB</span>
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Notifications</span>
+                  <span className="sm:hidden">Notify</span>
+                </TabsTrigger>
+                <TabsTrigger value="appearance" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Appearance</span>
+                  <span className="sm:hidden">Theme</span>
+                </TabsTrigger>
+                <TabsTrigger value="privacy" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Privacy</span>
+                  <span className="sm:hidden">Privacy</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="database">
+                <DatabaseSettings />
+              </TabsContent>
+
+              <TabsContent value="notifications">
+                <NotificationSettings />
+              </TabsContent>
+
+              <TabsContent value="appearance">
+                <AppearanceSettings />
+              </TabsContent>
+
+              <TabsContent value="privacy">
+                <PrivacySettings />
+              </TabsContent>
+            </Tabs>
           </div>
         )
       case "dashboard":
@@ -782,9 +851,9 @@ Family Hub
             </div>
 
             {/* Dashboard Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {/* Today's Schedule */}
-              <Card className="md:col-span-2">
+              <Card className="col-span-1 md:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-lg font-semibold">Today's Schedule</CardTitle>
                   <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -809,7 +878,7 @@ Family Hub
                   </div>
                   <Button
                     variant="outline"
-                    className="w-full mt-4 bg-transparent"
+                    className="w-full mt-4"
                     onClick={() => setActiveSection("schedule")}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
@@ -839,7 +908,7 @@ Family Hub
                     </div>
                     <Button
                       variant="outline"
-                      className="w-full mt-4 bg-transparent"
+                      className="w-full mt-4"
                       onClick={() => setActiveSection("subscriptions")}
                     >
                       <CreditCard className="h-4 w-4 mr-2" />
@@ -918,17 +987,17 @@ Family Hub
               </Button>
               <Button
                 variant="outline"
-                className="h-12 bg-transparent"
+                className="h-12"
                 onClick={() => setShowTrackSubscriptionModal(true)}
               >
                 <CreditCard className="h-4 w-4 mr-2" />
                 Track Subscription
               </Button>
-              <Button variant="outline" className="h-12 bg-transparent" onClick={() => setShowAddTaskModal(true)}>
+              <Button variant="outline" className="h-12" onClick={() => setShowAddTaskModal(true)}>
                 <CheckSquare className="h-4 w-4 mr-2" />
                 Add Task
               </Button>
-              <Button variant="outline" className="h-12 bg-transparent" onClick={() => setShowManageFamilyModal(true)}>
+              <Button variant="outline" className="h-12" onClick={() => setShowManageFamilyModal(true)}>
                 <Users className="h-4 w-4 mr-2" />
                 Manage Family
               </Button>
@@ -947,41 +1016,85 @@ Family Hub
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
+        <div className="container flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center space-x-2">
-            <Home className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold text-balance">Family Hub</h1>
+            <Home className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <h1 className="text-lg sm:text-xl font-bold text-balance">Family Hub</h1>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             {navigation.map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium transition-colors ${
                     activeSection === item.id
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3 w-3 xl:h-4 xl:w-4" />
                   <span>{item.label}</span>
                 </button>
               )
             })}
           </nav>
 
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            <NotificationCenter onNavigate={setActiveSection} />
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden sm:flex items-center space-x-2 sm:space-x-4">
+              <ThemeToggle />
+              <NotificationCenter onNavigate={setActiveSection} />
+            </div>
+            
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="lg:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <SheetHeader>
+                  <SheetTitle>Navigation</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col space-y-4 mt-6">
+                  <div className="flex items-center justify-between pb-4 border-b sm:hidden">
+                    <ThemeToggle />
+                    <NotificationCenter onNavigate={setActiveSection} />
+                  </div>
+                  <nav className="flex flex-col space-y-2">
+                    {navigation.map((item) => {
+                      const Icon = item.icon
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setActiveSection(item.id)
+                            setMobileMenuOpen(false)
+                          }}
+                          className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                            activeSection === item.id
+                              ? "bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          <Icon className="h-5 w-5" />
+                          <span className="font-medium">{item.label}</span>
+                        </button>
+                      )
+                    })}
+                  </nav>
+              </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">{renderContent()}</main>
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">{renderContent()}</main>
 
       {/* Add Task Modal */}
       <Dialog open={showAddTaskModal} onOpenChange={setShowAddTaskModal}>

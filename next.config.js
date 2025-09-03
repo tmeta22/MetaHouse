@@ -8,9 +8,6 @@ const nextConfig = {
     }
     return config
   },
-  experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3']
-  },
   // PWA Configuration
   async headers() {
     return [

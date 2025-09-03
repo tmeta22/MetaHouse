@@ -69,9 +69,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [isPushSupported, setIsPushSupported] = useState(false)
   const [isPushSubscribed, setIsPushSubscribed] = useState(false)
   const [permissionGranted, setPermissionGranted] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   // Load settings and notifications from localStorage on mount
   useEffect(() => {
+    setMounted(true)
     const savedSettings = localStorage.getItem('notificationSettings')
     if (savedSettings) {
       setSettings(JSON.parse(savedSettings))
@@ -110,13 +112,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   // Save notifications to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('metaFamily_notifications', JSON.stringify(notifications))
-  }, [notifications])
+    if (mounted) {
+      localStorage.setItem('metaFamily_notifications', JSON.stringify(notifications))
+    }
+  }, [notifications, mounted])
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('metaFamily_notificationSettings', JSON.stringify(settings))
-  }, [settings])
+    if (mounted) {
+      localStorage.setItem('metaFamily_notificationSettings', JSON.stringify(settings))
+    }
+  }, [settings, mounted])
 
   // Clean up expired notifications
   useEffect(() => {

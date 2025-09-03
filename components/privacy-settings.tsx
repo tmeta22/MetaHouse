@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -13,8 +13,6 @@ interface PrivacySettings {
   dataCollection: boolean
   analyticsTracking: boolean
   crashReporting: boolean
-  locationTracking: boolean
-  biometricAuth: boolean
   autoLock: boolean
   shareUsageData: boolean
 }
@@ -23,8 +21,6 @@ const defaultSettings: PrivacySettings = {
   dataCollection: true,
   analyticsTracking: false,
   crashReporting: true,
-  locationTracking: false,
-  biometricAuth: false,
   autoLock: true,
   shareUsageData: false
 }
@@ -32,13 +28,34 @@ const defaultSettings: PrivacySettings = {
 export function PrivacySettings() {
   const [settings, setSettings] = useState<PrivacySettings>(defaultSettings)
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    setMounted(true)
+    const savedSettings = localStorage.getItem('privacySettings')
+    if (savedSettings) {
+      try {
+        setSettings(JSON.parse(savedSettings))
+      } catch (error) {
+        console.error('Failed to parse privacy settings:', error)
+      }
+    }
+  }, [])
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return null
+  }
 
   const handleSettingChange = (key: keyof PrivacySettings, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
   const saveSettings = async () => {
+    if (!mounted) return
+    
     setIsLoading(true)
     try {
       // Save to localStorage (in a real app, this would be an API call)
@@ -98,17 +115,76 @@ export function PrivacySettings() {
 
   const deleteAllData = async () => {
     try {
-      // In a real app, this would call an API to delete all user data
+      // Get all data first to know what to delete
+      const [tasksRes, eventsRes, subscriptionsRes, familyMembersRes, transactionsRes] = await Promise.all([
+        fetch('/api/tasks'),
+        fetch('/api/events'),
+        fetch('/api/subscriptions'),
+        fetch('/api/family-members'),
+        fetch('/api/transactions')
+      ])
+
+      const [tasks, events, subscriptions, familyMembers, transactions] = await Promise.all([
+        tasksRes.ok ? tasksRes.json() : [],
+        eventsRes.ok ? eventsRes.json() : [],
+        subscriptionsRes.ok ? subscriptionsRes.json() : [],
+        familyMembersRes.ok ? familyMembersRes.json() : [],
+        transactionsRes.ok ? transactionsRes.json() : []
+      ])
+
+      // Delete all data in parallel
+      const deletePromises: Promise<Response>[] = []
+      
+      // Delete tasks
+      if (Array.isArray(tasks)) {
+        tasks.forEach(task => {
+          deletePromises.push(fetch(`/api/tasks?id=${task.id}`, { method: 'DELETE' }))
+        })
+      }
+      
+      // Delete events
+      if (Array.isArray(events)) {
+        events.forEach(event => {
+          deletePromises.push(fetch(`/api/events?id=${event.id}`, { method: 'DELETE' }))
+        })
+      }
+      
+      // Delete subscriptions
+      if (Array.isArray(subscriptions)) {
+        subscriptions.forEach(subscription => {
+          deletePromises.push(fetch(`/api/subscriptions?id=${subscription.id}`, { method: 'DELETE' }))
+        })
+      }
+      
+      // Delete family members
+      if (Array.isArray(familyMembers)) {
+        familyMembers.forEach(member => {
+          deletePromises.push(fetch(`/api/family-members?id=${member.id}`, { method: 'DELETE' }))
+        })
+      }
+      
+      // Delete transactions
+      if (Array.isArray(transactions)) {
+        transactions.forEach(transaction => {
+          deletePromises.push(fetch(`/api/transactions?id=${transaction.id}`, { method: 'DELETE' }))
+        })
+      }
+
+      // Wait for all deletions to complete
+      await Promise.all(deletePromises)
+      
+      // Clear localStorage as well
       localStorage.clear()
       
       toast({
         title: "Data deleted",
-        description: "All your data has been permanently deleted.",
+        description: "All your data has been permanently deleted from the database.",
       })
     } catch (error) {
+      console.error('Delete all data error:', error)
       toast({
         title: "Deletion failed",
-        description: "Failed to delete your data.",
+        description: "Failed to delete your data. Please try again.",
         variant: "destructive",
       })
     }
@@ -187,21 +263,20 @@ export function PrivacySettings() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <EyeOff className="h-4 w-4 text-purple-500" />
+                <Database className="h-4 w-4 text-purple-500" />
                 <div>
-                  <Label htmlFor="location-tracking" className="text-sm font-medium">
-                    Location Tracking
+                  <Label htmlFor="share-usage-data" className="text-sm font-medium">
+                    Share Usage Data
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    Allow location-based features (currently not implemented)
+                    Share anonymous usage statistics to help improve the app
                   </p>
                 </div>
               </div>
               <Switch
-                id="location-tracking"
-                checked={settings.locationTracking}
-                onCheckedChange={(checked) => handleSettingChange('locationTracking', checked)}
-                disabled
+                id="share-usage-data"
+                checked={settings.shareUsageData}
+                onCheckedChange={(checked) => handleSettingChange('shareUsageData', checked)}
               />
             </div>
           </div>
@@ -219,23 +294,6 @@ export function PrivacySettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="biometric-auth" className="text-sm font-medium">
-                Biometric Authentication
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Use fingerprint or face recognition to unlock the app
-              </p>
-            </div>
-            <Switch
-              id="biometric-auth"
-              checked={settings.biometricAuth}
-              onCheckedChange={(checked) => handleSettingChange('biometricAuth', checked)}
-              disabled
-            />
-          </div>
-
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="auto-lock" className="text-sm font-medium">

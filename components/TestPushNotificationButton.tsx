@@ -42,7 +42,7 @@ export default function TestPushNotificationButton() {
     <Button 
       onClick={handleTestPushNotification}
       variant="outline" 
-      className="h-12 bg-transparent"
+      className="h-12"
       disabled={!isPushSupported}
     >
       <Bell className="h-4 w-4 mr-2" />

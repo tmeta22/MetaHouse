@@ -1,47 +1,7 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color palette to match family hub design brief */
-  --background: #ffffff;
-  --foreground: #475569;
-  --card: #f1f5f9;
-  --card-foreground: #475569;
-  --popover: #ffffff;
-  --popover-foreground: #475569;
-  --primary: #059669;
-  --primary-foreground: #ffffff;
-  --secondary: #10b981;
-  --secondary-foreground: #ffffff;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-  --accent: #10b981;
-  --accent-foreground: #ffffff;
-  --destructive: #ff4c4c;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #ffffff;
-  --ring: rgba(9, 150, 105, 0.5);
-  --chart-1: #059669;
-  --chart-2: #10b981;
-  --chart-3: #f1f5f9;
-  --chart-4: #475569;
-  --chart-5: #ffffff;
-  --radius: 0.5rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #475569;
-  --sidebar-primary: #059669;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #10b981;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: rgba(9, 150, 105, 0.5);
-}
-
-.theme-dark {
-  /* Updated dark mode colors to complement the emerald theme */
+  /* Default light theme - Updated colors to complement the emerald theme */
   --background: #0f172a;
   --foreground: #f1f5f9;
   --card: #1e293b;
@@ -66,6 +26,7 @@
   --chart-3: #334155;
   --chart-4: #94a3b8;
   --chart-5: #1e293b;
+  --radius: 0.5rem;
   --sidebar: #1e293b;
   --sidebar-foreground: #f1f5f9;
   --sidebar-primary: #10b981;
@@ -76,26 +37,65 @@
   --sidebar-ring: rgba(16, 185, 129, 0.5);
 }
 
-.theme-glassmorphism {
+html.theme-default {
+  /* Light theme variables */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #ffffff;
+  --ring: rgba(16, 185, 129, 0.5);
+  --chart-1: #10b981;
+  --chart-2: #059669;
+  --chart-3: #e2e8f0;
+  --chart-4: #64748b;
+  --chart-5: #f1f5f9;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: rgba(16, 185, 129, 0.5);
+}
+
+
+
+html.theme-glassmorphism {
   /* Glassmorphism theme with translucent elements */
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --foreground: #ffffff;
-  --card: rgba(255, 255, 255, 0.1);
+  --card: rgba(255, 255, 255, 0.15);
   --card-foreground: #ffffff;
-  --popover: rgba(255, 255, 255, 0.15);
+  --popover: rgba(255, 255, 255, 0.25);
   --popover-foreground: #ffffff;
   --primary: rgba(16, 185, 129, 0.8);
   --primary-foreground: #ffffff;
   --secondary: rgba(5, 150, 105, 0.7);
   --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --muted: rgba(255, 255, 255, 0.1);
+  --muted-foreground: rgba(255, 255, 255, 0.85);
   --accent: rgba(16, 185, 129, 0.6);
   --accent-foreground: #ffffff;
   --destructive: rgba(255, 108, 108, 0.8);
   --destructive-foreground: #ffffff;
   --border: rgba(255, 255, 255, 0.2);
-  --input: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
   --ring: rgba(16, 185, 129, 0.3);
   --chart-1: rgba(16, 185, 129, 0.8);
   --chart-2: rgba(5, 150, 105, 0.7);
@@ -112,84 +112,46 @@
   --sidebar-ring: rgba(16, 185, 129, 0.3);
 }
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
+/* Removed invalid @theme directive - using standard CSS variables instead */
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
 /* Glassmorphism specific styles */
-.theme-glassmorphism {
+html.theme-glassmorphism {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
 }
 
-.theme-glassmorphism body {
+html.theme-glassmorphism body {
   background: transparent;
 }
 
-.theme-glassmorphism [data-glass="true"],
-.theme-glassmorphism .glass-effect {
+html.theme-glassmorphism [data-glass="true"],
+html.theme-glassmorphism .glass-effect {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
-.theme-glassmorphism .card {
+html.theme-glassmorphism .card {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
-.theme-glassmorphism .dialog-content,
-.theme-glassmorphism .popover-content,
-.theme-glassmorphism .dropdown-content {
+html.theme-glassmorphism .dialog-content,
+html.theme-glassmorphism .popover-content,
+html.theme-glassmorphism .dropdown-content {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -197,19 +159,385 @@
 }
 
 /* Enhanced button styles for glassmorphism */
-.theme-glassmorphism .btn-glass {
+html.theme-glassmorphism .btn-glass {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
 }
 
-.theme-glassmorphism .btn-glass:hover {
+html.theme-glassmorphism .btn-glass:hover {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+}
+
+/* Enhanced dialog and card styles for glassmorphism */
+html.theme-glassmorphism [data-slot="dialog-content"],
+html.theme-glassmorphism [data-slot="alert-dialog-content"] {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  color: #1a202c !important;
+}
+
+/* Ensure dialog text is readable */
+html.theme-glassmorphism [data-slot="dialog-content"] *,
+html.theme-glassmorphism [data-slot="alert-dialog-content"] * {
+  color: #1a202c !important;
+}
+
+/* Dialog titles and descriptions */
+html.theme-glassmorphism [data-slot="dialog-title"],
+html.theme-glassmorphism [data-slot="alert-dialog-title"] {
+  color: #1a202c !important;
+  font-weight: 600;
+}
+
+html.theme-glassmorphism [data-slot="dialog-description"],
+html.theme-glassmorphism [data-slot="alert-dialog-description"] {
+  color: #4a5568 !important;
+}
+
+html.theme-glassmorphism .card {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure all text in glassmorphism theme is readable */
+html.theme-glassmorphism [data-slot="card"] {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism [data-slot="card"] *,
+html.theme-glassmorphism [data-slot="card-title"],
+html.theme-glassmorphism [data-slot="card-description"],
+html.theme-glassmorphism [data-slot="card-content"] * {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism .text-muted-foreground {
+  color: #4a5568 !important;
+}
+
+html.theme-glassmorphism .text-sm,
+html.theme-glassmorphism .text-xs {
+  color: #1a202c !important;
+}
+
+/* Fix notification text visibility with higher specificity */
+html.theme-glassmorphism .text-gray-900,
+html.theme-glassmorphism .text-gray-800,
+html.theme-glassmorphism .text-gray-700,
+html.theme-glassmorphism .text-gray-600 {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism .text-gray-500,
+html.theme-glassmorphism .text-gray-400 {
+  color: #4a5568 !important;
+}
+
+/* Additional gray text color overrides for better coverage */
+html.theme-glassmorphism .text-gray-300,
+html.theme-glassmorphism .text-gray-200,
+html.theme-glassmorphism .text-gray-100 {
+  color: #1a202c !important;
+}
+
+/* Ensure all slate and zinc colors are also covered */
+html.theme-glassmorphism .text-slate-900,
+html.theme-glassmorphism .text-slate-800,
+html.theme-glassmorphism .text-slate-700,
+html.theme-glassmorphism .text-slate-600 {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism .text-slate-500,
+html.theme-glassmorphism .text-slate-400,
+html.theme-glassmorphism .text-slate-300 {
+  color: #4a5568 !important;
+}
+
+html.theme-glassmorphism .text-zinc-900,
+html.theme-glassmorphism .text-zinc-800,
+html.theme-glassmorphism .text-zinc-700,
+html.theme-glassmorphism .text-zinc-600 {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism .text-zinc-500,
+html.theme-glassmorphism .text-zinc-400,
+html.theme-glassmorphism .text-zinc-300 {
+  color: #4a5568 !important;
+}
+
+/* Specific notification component targeting */
+html.theme-glassmorphism [class*="mb-3"] h4,
+html.theme-glassmorphism [class*="mb-3"] p,
+html.theme-glassmorphism .card h4,
+html.theme-glassmorphism .card p,
+html.theme-glassmorphism .card .font-medium {
+  color: #1a202c !important;
+  font-weight: 600 !important;
+}
+
+/* Force notification title and message visibility */
+html.theme-glassmorphism .card .text-sm,
+html.theme-glassmorphism .card .text-xs,
+html.theme-glassmorphism .card [class*="text-gray"] {
+  color: #1a202c !important;
+}
+
+/* Ensure notification cards have proper background */
+html.theme-glassmorphism .mb-3,
+html.theme-glassmorphism .card {
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Notification text overrides for all themes */
+html.theme-glassmorphism h4,
+html.theme-glassmorphism p {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism .font-medium {
+  color: #1a202c !important;
+  font-weight: 600;
+}
+
+/* Dialog styling for glassmorphism theme */
+html.theme-glassmorphism [data-slot="dialog-content"] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism [data-slot="dialog-content"] *,
+html.theme-glassmorphism [data-slot="dialog-title"],
+html.theme-glassmorphism [data-slot="dialog-description"] {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism [data-slot="dialog-content"] .text-muted-foreground {
+  color: #4a5568 !important;
+}
+
+/* Switch component styling for glassmorphism theme */
+html.theme-glassmorphism [data-slot="switch"] {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+html.theme-glassmorphism [data-slot="switch"][data-state="checked"] {
+  background: rgba(59, 130, 246, 0.8) !important;
+}
+
+html.theme-glassmorphism [data-slot="switch-thumb"] {
+  background: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Label text visibility in settings */
+html.theme-glassmorphism .text-sm.font-medium,
+html.theme-glassmorphism label {
+  color: #1a202c !important;
+  font-weight: 600 !important;
+}
+
+/* Alert Dialog styling for glassmorphism theme */
+html.theme-glassmorphism [data-slot="alert-dialog-content"] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism [data-slot="alert-dialog-content"] *,
+html.theme-glassmorphism [data-slot="alert-dialog-title"],
+html.theme-glassmorphism [data-slot="alert-dialog-description"] {
+  color: #1a202c !important;
+}
+
+html.theme-glassmorphism [data-slot="alert-dialog-content"] .text-muted-foreground {
+  color: #4a5568 !important;
+}
+
+/* Button styling in glassmorphism theme */
+html.theme-glassmorphism .bg-destructive {
+  background: rgba(239, 68, 68, 0.9) !important;
+  color: white !important;
+}
+
+html.theme-glassmorphism .bg-destructive:hover {
+  background: rgba(220, 38, 38, 0.9) !important;
+}
+
+/* Primary button styling */
+html.theme-glassmorphism [data-slot="button"][data-variant="default"],
+html.theme-glassmorphism .bg-primary {
+  background: rgba(16, 185, 129, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html.theme-glassmorphism [data-slot="button"][data-variant="default"]:hover,
+html.theme-glassmorphism .bg-primary:hover {
+  background: rgba(16, 185, 129, 0.8) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+/* Secondary button styling */
+html.theme-glassmorphism [data-slot="button"][data-variant="secondary"],
+html.theme-glassmorphism .bg-secondary {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #1a202c !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html.theme-glassmorphism [data-slot="button"][data-variant="secondary"]:hover,
+html.theme-glassmorphism .bg-secondary:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+/* Outline button styling */
+html.theme-glassmorphism [data-slot="button"][data-variant="outline"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #1a202c !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html.theme-glassmorphism [data-slot="button"][data-variant="outline"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-1px);
+}
+
+/* Ghost button styling */
+html.theme-glassmorphism [data-slot="button"][data-variant="ghost"] {
+  background: transparent !important;
+  color: #1a202c !important;
+  border: 1px solid transparent !important;
+}
+
+html.theme-glassmorphism [data-slot="button"][data-variant="ghost"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Link button styling */
+html.theme-glassmorphism [data-slot="button"][data-variant="link"] {
+  color: #1a202c !important;
+  text-decoration: underline;
+}
+
+html.theme-glassmorphism [data-slot="button"][data-variant="link"]:hover {
+  color: #2d3748 !important;
+}
+
+/* Ensure all buttons have proper text contrast */
+html.theme-glassmorphism button,
+html.theme-glassmorphism [role="button"] {
+  font-weight: 500 !important;
+}
+
+/* Disabled button styling */
+html.theme-glassmorphism [data-slot="button"]:disabled,
+html.theme-glassmorphism button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+
+
+/* Enhanced button visibility and styling */
+[data-slot="button"] {
+  font-weight: 500 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+[data-slot="button"]:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-slot="button"]:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Enhanced destructive button styling */
+[data-slot="button"][data-variant="destructive"] {
+  background: #dc2626 !important;
+  color: white !important;
+  border: 2px solid #dc2626 !important;
+  font-weight: 600 !important;
+}
+
+[data-slot="button"][data-variant="destructive"]:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+/* Enhanced primary button styling */
+[data-slot="button"][data-variant="default"] {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border: 2px solid hsl(var(--primary)) !important;
+}
+
+[data-slot="button"][data-variant="default"]:hover {
+  background: hsl(var(--primary) / 0.9) !important;
+  border-color: hsl(var(--primary) / 0.9) !important;
+}
+
+/* Enhanced outline button styling */
+[data-slot="button"][data-variant="outline"] {
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 2px solid hsl(var(--border)) !important;
+}
+
+[data-slot="button"][data-variant="outline"]:hover {
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+/* Enhanced secondary button styling */
+[data-slot="button"][data-variant="secondary"] {
+  background: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border: 2px solid hsl(var(--secondary)) !important;
+}
+
+[data-slot="button"][data-variant="secondary"]:hover {
+  background: hsl(var(--secondary) / 0.8) !important;
+  border-color: hsl(var(--secondary) / 0.8) !important;
 }
 
 /* Smooth transitions for theme switching */

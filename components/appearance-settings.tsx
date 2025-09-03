@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Palette, Sun, Moon, Monitor, Paintbrush } from 'lucide-react'
@@ -11,7 +12,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useTheme } from '@/contexts/ThemeContext'
 
 interface AppearanceSettings {
-  theme: 'default' | 'dark' | 'glassmorphism'
+  theme: 'default' | 'glassmorphism'
   accentColor: string
   fontSize: 'small' | 'medium' | 'large'
   compactMode: boolean
@@ -36,10 +37,12 @@ const accentColors = [
 export function AppearanceSettings() {
   const [settings, setSettings] = useState<AppearanceSettings>(defaultSettings)
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
+    setMounted(true)
     // Load saved settings from localStorage
     const savedSettings = localStorage.getItem('appearanceSettings')
     if (savedSettings) {
@@ -48,7 +51,7 @@ export function AppearanceSettings() {
     }
   }, [])
 
-  const handleThemeChange = (newTheme: 'default' | 'dark' | 'glassmorphism') => {
+  const handleThemeChange = (newTheme: 'default' | 'glassmorphism') => {
     setSettings(prev => ({ ...prev, theme: newTheme }))
     setTheme(newTheme)
   }
@@ -58,6 +61,8 @@ export function AppearanceSettings() {
   }
 
   const saveSettings = async () => {
+    if (!mounted) return
+    
     setIsLoading(true)
     try {
       // Save to localStorage (in a real app, this would be an API call)
@@ -106,7 +111,7 @@ export function AppearanceSettings() {
               <Label className="text-sm font-medium mb-3 block">Theme Mode</Label>
               <RadioGroup
                 value={settings.theme}
-                onValueChange={(value) => handleThemeChange(value as 'default' | 'dark' | 'glassmorphism')}
+                onValueChange={(value) => handleThemeChange(value as 'default' | 'glassmorphism')}
                 className="flex flex-col space-y-2"
               >
                 <div className="flex items-center space-x-2">
@@ -116,13 +121,7 @@ export function AppearanceSettings() {
                     Light
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="dark" id="dark" />
-                  <Label htmlFor="dark" className="flex items-center gap-2 cursor-pointer">
-                    <Moon className="h-4 w-4" />
-                    Dark
-                  </Label>
-                </div>
+
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="glassmorphism" id="glassmorphism" />
                   <Label htmlFor="glassmorphism" className="flex items-center gap-2 cursor-pointer">
@@ -174,18 +173,16 @@ export function AppearanceSettings() {
 
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-sm font-medium">Compact Mode</Label>
+                <Label htmlFor="compact-mode" className="text-sm font-medium">Compact Mode</Label>
                 <p className="text-xs text-muted-foreground">
                   Reduce spacing and padding for a more compact interface
                 </p>
               </div>
-              <Button
-                variant={settings.compactMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleSettingChange('compactMode', !settings.compactMode)}
-              >
-                {settings.compactMode ? 'Enabled' : 'Disabled'}
-              </Button>
+              <Switch
+                id="compact-mode"
+                checked={settings.compactMode}
+                onCheckedChange={(checked) => handleSettingChange('compactMode', checked)}
+              />
             </div>
           </div>
 

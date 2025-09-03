@@ -15,7 +15,6 @@ interface NotificationSettings {
   transactionAlerts: boolean
   subscriptionReminders: boolean
   pushNotifications: boolean
-  emailNotifications: boolean
 }
 
 const defaultSettings: NotificationSettings = {
@@ -24,20 +23,25 @@ const defaultSettings: NotificationSettings = {
   familyUpdates: true,
   transactionAlerts: false,
   subscriptionReminders: true,
-  pushNotifications: true,
-  emailNotifications: false
+  pushNotifications: true
 }
 
 export function NotificationSettings() {
   const [settings, setSettings] = useState<NotificationSettings>(defaultSettings)
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
+    setMounted(true)
     // Load saved settings from localStorage
     const savedSettings = localStorage.getItem('notificationSettings')
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings))
+      try {
+        setSettings(JSON.parse(savedSettings))
+      } catch (error) {
+        console.error('Failed to parse notification settings:', error)
+      }
     }
   }, [])
 
@@ -46,6 +50,8 @@ export function NotificationSettings() {
   }
 
   const saveSettings = async () => {
+    if (!mounted) return
+    
     setIsLoading(true)
     try {
       // Save to localStorage (in a real app, this would be an API call)
@@ -200,22 +206,7 @@ export function NotificationSettings() {
               />
             </div>
 
-            <div className="flex items-center justify-between mt-4">
-              <div>
-                <Label htmlFor="email-notifications" className="text-sm font-medium">
-                  Email Notifications
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Receive notifications via email (coming soon)
-                </p>
-              </div>
-              <Switch
-                id="email-notifications"
-                checked={settings.emailNotifications}
-                onCheckedChange={(checked) => handleSettingChange('emailNotifications', checked)}
-                disabled
-              />
-            </div>
+
           </div>
 
           <div className="flex justify-end pt-4">

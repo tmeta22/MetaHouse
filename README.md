@@ -10,7 +10,7 @@ A comprehensive family management hub for organizing schedules, tracking subscri
 - **Trip Planning**: Plan and organize family trips with budget tracking
 - **Party Planning**: Organize family celebrations and events
 - **Calendar Integration**: Sync events with family calendars
-- **Dark/Light Theme**: Customizable appearance
+- **Light/Glassmorphism Theme**: Customizable appearance
 - **PWA Support**: Install as a mobile app
 
 ## Tech Stack
