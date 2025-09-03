@@ -1,0 +1,22 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" fill="url(#bg)" rx="24"/>
+  <g fill="white">
+    <!-- House shape -->
+    <path d="M96 24l72 60v84H120v-48H72v48H24V84L96 24z" stroke="white" stroke-width="2"/>
+    <!-- Family figures -->
+    <circle cx="72" cy="108" r="9"/>
+    <circle cx="96" cy="102" r="11"/>
+    <circle cx="120" cy="108" r="9"/>
+    <rect x="66" y="120" width="12" height="24" rx="6"/>
+    <rect x="90" y="114" width="12" height="30" rx="6"/>
+    <rect x="114" y="120" width="12" height="24" rx="6"/>
+    <!-- Heart symbol -->
+    <path d="M96 60c-8-12-24-12-24 0 0 12 24 24 24 24s24-12 24-24c0-12-16-12-24 0z" fill="#ef4444"/>
+  </g>
+</svg>

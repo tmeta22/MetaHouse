@@ -1,0 +1,5 @@
+{
+  "type": "neon",
+  "url": "postgresql://username:password@host/database",
+  "name": "Production Neon Database"
+}

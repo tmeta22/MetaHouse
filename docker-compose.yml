@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  family-hub:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - family_hub_data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/family-hub.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/tasks"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  family_hub_data:
+    driver: local
