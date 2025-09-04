@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js'
-import Database from 'better-sqlite3'
 import postgres from 'postgres'
 import { existsSync } from 'fs'
 import { join } from 'path'
@@ -51,7 +49,17 @@ export async function POST(request: NextRequest) {
 }
 
 async function testSQLiteConnection(): Promise<{ success: boolean; error: string }> {
+  // SQLite not supported in production
+  if (process.env.NODE_ENV === 'production') {
+    return { 
+      success: false, 
+      error: 'SQLite is not supported in production environment' 
+    }
+  }
+
   try {
+    // Dynamic import for SQLite to avoid build issues
+    const Database = (await import('better-sqlite3')).default
     const dbPath = join(process.cwd(), 'family-hub.db')
     
     // Check if database file exists or can be created
