@@ -4,6 +4,11 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('better-sqlite3')
+      // In production, completely ignore SQLite modules
+      if (process.env.NODE_ENV === 'production') {
+        config.externals.push('drizzle-orm/better-sqlite3')
+        config.externals.push('drizzle-orm/better-sqlite3/migrator')
+      }
     }
     return config
   },

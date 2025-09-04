@@ -12,8 +12,20 @@ interface DatabaseConfig {
 }
 
 function getDatabaseConfig(): DatabaseConfig {
+  // In production, only use PostgreSQL
+  if (process.env.NODE_ENV === 'production') {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL is required in production')
+    }
+    return {
+      type: 'neon',
+      url: process.env.DATABASE_URL,
+      name: 'Production Database'
+    }
+  }
+  
   // Check for production environment variables first
-  if (process.env.DATABASE_URL && process.env.NODE_ENV === 'production') {
+  if (process.env.DATABASE_URL) {
     return {
       type: 'neon',
       url: process.env.DATABASE_URL,
