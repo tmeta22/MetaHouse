@@ -12,3 +12,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Failed to initialize database' }, { status: 500 });
   }
 }
+
+// Allow GET requests for easy browser access
+export async function GET() {
+  return POST();
+}
