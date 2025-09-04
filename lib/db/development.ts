@@ -14,6 +14,14 @@ interface DatabaseConfig {
 function getDatabaseConfig(): DatabaseConfig {
   // Check for production environment variables first
   if (process.env.DATABASE_URL) {
+    // Check if it's a SQLite URL
+    if (process.env.DATABASE_URL.startsWith('file:')) {
+      return {
+        type: 'sqlite',
+        url: process.env.DATABASE_URL,
+        name: 'Local SQLite Database'
+      }
+    }
     return {
       type: 'neon',
       url: process.env.DATABASE_URL,

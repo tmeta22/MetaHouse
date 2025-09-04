@@ -3,7 +3,10 @@ let dbModule: any = null
 
 async function getDbModule() {
   if (!dbModule) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.SKIP_DB_INIT === 'true') {
+      // Use fallback module during build time only
+      dbModule = await import('./fallback')
+    } else if (process.env.NODE_ENV === 'production') {
       // In production, use the production-only module that has no SQLite imports
       dbModule = await import('./production')
     } else {
