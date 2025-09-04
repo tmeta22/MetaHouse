@@ -77,16 +77,129 @@ export default function FamilyHubDashboard() {
     refreshData
   } = useData()
   
-  const { addNotification } = useNotifications()
+  const { addNotification, notifications } = useNotifications()
 
-  // Add sample notifications on component mount
-  React.useEffect(() => {
-    // Add some sample notifications to demonstrate functionality
-    addNotification(createScheduleReminder("Team Meeting", new Date(Date.now() + 30 * 60 * 1000))) // 30 minutes from now
-    addNotification(createSubscriptionAlert("Netflix", 15.99, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000))) // 3 days from now
-    addNotification(createTaskReminder("Buy groceries", "Family", new Date(Date.now() + 2 * 60 * 60 * 1000))) // 2 hours from now
-    addNotification(createFamilyUpdate("John", "completed their homework"))
-  }, [])
+  // Generate chart data from real transactions and tasks - moved here to fix hook ordering
+  const monthlyExpenseData = React.useMemo(() => {
+    // Generate data from actual transactions if available
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    return months.map(month => ({
+      month,
+      expenses: 0, // Calculate from actual transactions
+      income: 0,   // Calculate from actual transactions
+      subscriptions: subscriptions.reduce((sum, sub) => sum + sub.cost, 0)
+    }))
+  }, [transactions, subscriptions])
+
+  const taskCompletionData = React.useMemo(() => {
+    // Generate data from actual tasks if available
+    const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4']
+    return weeks.map(week => {
+      const completed = tasks.filter(task => task.completed).length
+      const pending = tasks.filter(task => !task.completed).length
+      return { week, completed, pending, total: completed + pending }
+    })
+  }, [tasks])
+
+  const categoryExpenseData = React.useMemo(() => {
+    // Generate category data from actual transactions
+    const categories = ['Groceries', 'Utilities', 'Entertainment', 'Transportation', 'Healthcare', 'Others']
+    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff88', '#ff8042']
+    
+    return categories.map((name, index) => {
+      const categoryTransactions = transactions.filter(t => 
+        t.category.toLowerCase() === name.toLowerCase() && t.type === 'expense'
+      )
+      const value = categoryTransactions.reduce((sum, t) => sum + t.amount, 0)
+      return { name, value, color: colors[index] }
+    }).filter(item => item.value > 0) // Only show categories with actual expenses
+  }, [transactions])
+
+  const memberActivityData = React.useMemo(() => {
+    return familyMembers.map(member => {
+      const memberTasks = tasks.filter(task => task.assignee === member.name)
+      const memberEvents = events.filter(event => event.member === member.name)
+      const completedTasks = memberTasks.filter(task => task.completed).length
+      const completion = memberTasks.length > 0 ? Math.round((completedTasks / memberTasks.length) * 100) : 0
+      
+      return {
+        name: member.name.split(' ')[0],
+        tasks: memberTasks.length,
+        events: memberEvents.length,
+        completion
+      }
+    })
+  }, [familyMembers, tasks, events])
+
+  // Get today's events from the shared context
+  const todaysEvents = React.useMemo(() => {
+    return events
+      .filter(event => event.date === new Date().toISOString().split('T')[0])
+      .map(event => ({
+        time: event.time,
+        title: event.title,
+        member: event.member,
+        type: event.category
+      }))
+  }, [events])
+
+  // Get upcoming events (next 7 days) from the shared context
+  const upcomingEvents = React.useMemo(() => {
+    const today = new Date()
+    const nextWeek = new Date(today)
+    nextWeek.setDate(today.getDate() + 7)
+    
+    return events
+      .filter(event => {
+        const eventDate = new Date(event.date)
+        return eventDate >= today && eventDate <= nextWeek
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(0, 4) // Limit to 4 upcoming events
+      .map(event => {
+        const eventDate = new Date(event.date)
+        const isToday = eventDate.toDateString() === today.toDateString()
+        const isTomorrow = eventDate.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString()
+        
+        let dateDisplay = ''
+        if (isToday) {
+          dateDisplay = `Today ${event.time}`
+        } else if (isTomorrow) {
+          dateDisplay = `Tomorrow ${event.time}`
+        } else {
+          dateDisplay = `${eventDate.toLocaleDateString('en-US', { weekday: 'long' })} ${event.time}`
+        }
+        
+        return {
+          activity: event.title,
+          date: dateDisplay,
+          type: event.category
+        }
+      })
+  }, [events])
+
+  // Handle task completion toggle
+  const handleToggleTask = async (taskId: string, completed: boolean) => {
+    try {
+      await updateTask(taskId, { completed })
+      addNotification({
+        type: 'system',
+        title: completed ? 'Task Completed!' : 'Task Reopened',
+        message: completed ? 'Great job on completing your task!' : 'Task has been reopened.',
+        priority: 'medium'
+      })
+    } catch (error) {
+      console.error('Failed to update task:', error)
+      addNotification({
+        type: 'system',
+        title: 'Error',
+        message: 'Failed to update task. Please try again.',
+        priority: 'high'
+      })
+    }
+  }
+
+  // Removed sample notifications - using real data only
 
   // Show loading state while data is being fetched
   if (isLoading) {
@@ -100,38 +213,7 @@ export default function FamilyHubDashboard() {
     )
   }
 
-  // Chart data for analytics
-  const monthlyExpenseData = [
-    { month: 'Jan', expenses: 2100, income: 3500, subscriptions: 450 },
-    { month: 'Feb', expenses: 2300, income: 3500, subscriptions: 470 },
-    { month: 'Mar', expenses: 2450, income: 3600, subscriptions: 480 },
-    { month: 'Apr', expenses: 2200, income: 3550, subscriptions: 460 },
-    { month: 'May', expenses: 2600, income: 3700, subscriptions: 490 },
-    { month: 'Jun', expenses: 2450, income: 3650, subscriptions: 485 }
-  ]
 
-  const taskCompletionData = [
-    { week: 'Week 1', completed: 12, pending: 8, total: 20 },
-    { week: 'Week 2', completed: 15, pending: 5, total: 20 },
-    { week: 'Week 3', completed: 18, pending: 7, total: 25 },
-    { week: 'Week 4', completed: 22, pending: 3, total: 25 }
-  ]
-
-  const categoryExpenseData = [
-    { name: 'Groceries', value: 850, color: '#8884d8' },
-    { name: 'Utilities', value: 420, color: '#82ca9d' },
-    { name: 'Entertainment', value: 320, color: '#ffc658' },
-    { name: 'Transportation', value: 280, color: '#ff7300' },
-    { name: 'Healthcare', value: 180, color: '#00ff88' },
-    { name: 'Others', value: 400, color: '#ff8042' }
-  ]
-
-  const memberActivityData = familyMembers.map(member => ({
-    name: member.name.split(' ')[0],
-    tasks: member.tasks || 0,
-    events: member.upcoming || 0,
-    completion: Math.floor(Math.random() * 30) + 70
-  }))
 
   // Report generation functions
   const generatePDFReport = () => {
@@ -298,21 +380,8 @@ Family Hub
     })
   }
 
-  // Get today's events from the shared context
-  const todaysEvents = events
-    .filter(event => event.date === new Date().toISOString().split('T')[0])
-    .map(event => ({
-      time: event.time,
-      title: event.title,
-      member: event.member,
-      type: event.category
-    }))
-
-  const notifications = [
-    { type: "schedule", message: "Soccer practice in 2 hours", time: "7:00 AM" },
-    { type: "subscription", message: "Spotify payment due tomorrow", time: "6:30 AM" },
-    { type: "task", message: "Math homework due today", time: "6:00 AM" },
-  ]
+  // Use real notifications from context instead of hardcoded ones
+  const realNotifications = notifications
 
   const navigation = [
     { id: "dashboard", label: "Dashboard", icon: Home },
@@ -707,25 +776,29 @@ Family Hub
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { task: "Complete math homework", assignee: "Alex", due: "Today", priority: "high" },
-                      { task: "Grocery shopping", assignee: "Sarah", due: "Tomorrow", priority: "medium" },
-                      { task: "Clean garage", assignee: "Family", due: "This weekend", priority: "low" },
-                      { task: "Prepare for school presentation", assignee: "Alex", due: "Friday", priority: "high" },
-                    ].map((task, index) => (
-                      <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 gap-2 sm:gap-0">
-                        <div className="flex items-center space-x-3">
-                          <input type="checkbox" className="rounded" />
-                          <div>
-                            <p className="font-medium">{task.task}</p>
-                            <p className="text-sm text-muted-foreground">{task.assignee} • Due: {task.due}</p>
+                    {tasks.length === 0 ? (
+                      <p className="text-muted-foreground text-center py-4">No tasks yet. Add your first task to get started!</p>
+                    ) : (
+                      tasks.filter(task => !task.completed).slice(0, 4).map((task) => (
+                        <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 gap-2 sm:gap-0">
+                          <div className="flex items-center space-x-3">
+                            <input 
+                              type="checkbox" 
+                              className="rounded" 
+                              checked={task.completed}
+                              onChange={() => handleToggleTask(task.id, !task.completed)}
+                            />
+                            <div>
+                              <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</p>
+                              <p className="text-sm text-muted-foreground">{task.assignee} • Due: {task.dueDate || 'No due date'}</p>
+                            </div>
                           </div>
+                          <Badge variant={task.priority === "high" ? "destructive" : task.priority === "medium" ? "default" : "secondary"}>
+                            {task.priority}
+                          </Badge>
                         </div>
-                        <Badge variant={task.priority === "high" ? "destructive" : task.priority === "medium" ? "default" : "secondary"}>
-                          {task.priority}
-                        </Badge>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -739,20 +812,23 @@ Family Hub
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { activity: "Family Movie Night", date: "Tonight 7:00 PM", type: "family" },
-                      { activity: "Soccer Practice", date: "Tomorrow 4:00 PM", type: "sport" },
-                      { activity: "Parent-Teacher Conference", date: "Thursday 3:00 PM", type: "school" },
-                      { activity: "Weekend Hiking Trip", date: "Saturday 9:00 AM", type: "outdoor" },
-                    ].map((activity, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <div>
-                          <p className="font-medium">{activity.activity}</p>
-                          <p className="text-sm text-muted-foreground">{activity.date}</p>
+                    {upcomingEvents.length > 0 ? (
+                      upcomingEvents.map((activity, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                          <div>
+                            <p className="font-medium">{activity.activity}</p>
+                            <p className="text-sm text-muted-foreground">{activity.date}</p>
+                          </div>
+                          <Badge variant="outline">{activity.type}</Badge>
                         </div>
-                        <Badge variant="outline">{activity.type}</Badge>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No upcoming activities in the next 7 days</p>
+                        <p className="text-sm">Add events to see them here</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -765,19 +841,21 @@ Family Hub
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-destructive">4</div>
+                    <div className="text-2xl font-bold text-destructive">{tasks.filter(t => !t.completed).length}</div>
                     <p className="text-sm text-muted-foreground">Pending Tasks</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">12</div>
-                    <p className="text-sm text-muted-foreground">Completed This Week</p>
+                    <div className="text-2xl font-bold text-primary">{tasks.filter(t => t.completed).length}</div>
+                    <p className="text-sm text-muted-foreground">Completed Tasks</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-secondary">4</div>
-                    <p className="text-sm text-muted-foreground">Upcoming Events</p>
+                    <div className="text-2xl font-bold text-secondary">{events.length}</div>
+                    <p className="text-sm text-muted-foreground">Total Events</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-accent">85%</div>
+                    <div className="text-2xl font-bold text-accent">
+                      {tasks.length > 0 ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0}%
+                    </div>
                     <p className="text-sm text-muted-foreground">Completion Rate</p>
                   </div>
                 </div>
@@ -896,15 +974,27 @@ Family Hub
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">$116.95</div>
-                    <p className="text-xs text-muted-foreground">5 active subscriptions</p>
+                    <div className="text-2xl font-bold">
+                      ${subscriptions.filter(sub => sub.status === 'active').reduce((sum, sub) => {
+                        return sum + (sub.billingCycle === 'monthly' ? sub.cost : sub.cost / 12)
+                      }, 0).toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {subscriptions.filter(sub => sub.status === 'active').length} active subscriptions
+                    </p>
                     <div className="mt-4 space-y-2">
-                      {subscriptions.map((sub, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <span className="text-sm">{sub.name}</span>
-                          <Badge variant={sub.status === "due" ? "destructive" : "secondary"}>${sub.cost}</Badge>
+                      {subscriptions.length > 0 ? (
+                        subscriptions.slice(0, 3).map((sub, index) => (
+                          <div key={sub.id || index} className="flex items-center justify-between">
+                            <span className="text-sm">{sub.name}</span>
+                            <Badge variant={sub.status === "due" ? "destructive" : "secondary"}>${sub.cost}</Badge>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-sm text-muted-foreground text-center py-2">
+                          No subscriptions yet. Click below to add one.
                         </div>
-                      ))}
+                      )}
                     </div>
                     <Button
                       variant="outline"
@@ -958,23 +1048,32 @@ Family Hub
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {notifications.map((notification, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            notification.type === "schedule"
-                              ? "bg-blue-500"
-                              : notification.type === "subscription"
-                                ? "bg-orange-500"
-                                : "bg-green-500"
-                          }`}
-                        />
-                        <span className="text-sm">{notification.message}</span>
+                  {realNotifications.length > 0 ? (
+                    realNotifications.slice(0, 3).map((notification) => (
+                      <div key={notification.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              notification.type === "schedule"
+                                ? "bg-blue-500"
+                                : notification.type === "subscription"
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                            }`}
+                          />
+                          <span className="text-sm">{notification.message}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">{notification.time}</span>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No recent notifications</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>

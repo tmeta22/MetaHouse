@@ -117,15 +117,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const initData = async () => {
       try {
         setIsLoading(true)
-        // Only initialize database if no data exists
-        const tasksCheck = await fetch('/api/tasks')
-        const tasksData = await tasksCheck.json()
-        
-        if (!Array.isArray(tasksData) || tasksData.length === 0) {
-          // Initialize database via API only if no data exists
-          await fetch('/api/init', { method: 'POST' })
-        }
-        
+        // Just load data without auto-seeding
         await refreshData()
       } catch (error) {
         console.error('Failed to initialize database:', error)

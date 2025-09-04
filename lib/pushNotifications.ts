@@ -31,8 +31,8 @@ class PushNotificationService {
 
   constructor() {
     // In a real app, this would come from your server/environment variables
-    // For demo purposes, we'll use a placeholder
-    this.vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'demo-vapid-key'
+    // For demo purposes, we'll use a placeholder that won't cause errors
+    this.vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
   }
 
   // Initialize service worker and push notifications
@@ -85,6 +85,12 @@ class PushNotificationService {
   async subscribe(): Promise<PushSubscriptionData | null> {
     if (!this.serviceWorkerRegistration) {
       console.error('Service worker not registered')
+      return null
+    }
+
+    // Check if VAPID key is properly configured
+    if (!this.vapidPublicKey || this.vapidPublicKey === 'demo-vapid-key') {
+      console.warn('VAPID public key not configured. Push notifications disabled.')
       return null
     }
 
