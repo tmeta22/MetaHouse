@@ -260,7 +260,7 @@ const NotificationSettings: React.FC = () => {
           <div className="space-y-2">
             <Label htmlFor="reminder-time">Reminder Time (minutes before)</Label>
             <Select
-              value={settings.reminderMinutesBefore.toString()}
+              value={settings.reminderMinutesBefore?.toString() || '15'}
               onValueChange={(value) => updateSettings({ reminderMinutesBefore: parseInt(value) })}
             >
               <SelectTrigger>
@@ -283,7 +283,7 @@ const NotificationSettings: React.FC = () => {
             <input
               type="time"
               id="quiet-start"
-              value={settings.quietHoursStart}
+              value={settings.quietHoursStart || '22:00'}
               onChange={(e) => updateSettings({ quietHoursStart: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -293,7 +293,7 @@ const NotificationSettings: React.FC = () => {
             <input
               type="time"
               id="quiet-end"
-              value={settings.quietHoursEnd}
+              value={settings.quietHoursEnd || '07:00'}
               onChange={(e) => updateSettings({ quietHoursEnd: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -324,7 +324,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ classNam
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-background border-border backdrop-blur-none">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center space-x-2">

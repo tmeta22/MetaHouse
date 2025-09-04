@@ -179,15 +179,31 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [refreshData])
 
   const updateTask = useCallback(async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    // Optimistic update: immediately update local state
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task.id === id ? { ...task, ...updates } : task
+      )
+    )
+    
     try {
-      await fetch('/api/tasks', {
+      const response = await fetch('/api/tasks', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, ...updates })
       })
-      await refreshData()
+      
+      if (!response.ok) {
+        throw new Error('Failed to update task')
+      }
+      
+      // Don't refresh data immediately to avoid overriding optimistic update
+      // The optimistic update will remain until next data refresh
     } catch (error) {
       console.error('Failed to update task:', error)
+      // Revert optimistic update on error
+      await refreshData()
+      throw error
     }
   }, [refreshData])
 

@@ -441,7 +441,7 @@ Family Hub
                     {familyMembers.map((member, index) => (
                       <Card key={index}>
                         <CardHeader className="text-center">
-                          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                             <User className="h-10 w-10 text-primary" />
                           </div>
                           <CardTitle>{member.name}</CardTitle>
@@ -760,13 +760,13 @@ Family Hub
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl font-bold">Family Activities</h2>
-              <Button>
+              <Button onClick={() => setShowAddTaskModal(true)}>
                 <CheckSquare className="h-4 w-4 mr-2" />
                 Add Activity
               </Button>
             </div>
             
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -776,11 +776,11 @@ Family Hub
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {tasks.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-4">No tasks yet. Add your first task to get started!</p>
+                    {tasks.filter(task => !task.completed).length === 0 ? (
+                      <p className="text-muted-foreground text-center py-4">No active tasks. Great job!</p>
                     ) : (
                       tasks.filter(task => !task.completed).slice(0, 4).map((task) => (
-                        <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 gap-2 sm:gap-0">
+                        <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted gap-2 sm:gap-0">
                           <div className="flex items-center space-x-3">
                             <input 
                               type="checkbox" 
@@ -806,6 +806,42 @@ Family Hub
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
+                    <CheckSquare className="h-5 w-5 text-green-600" />
+                    <span>Completed Tasks</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {tasks.filter(task => task.completed).length === 0 ? (
+                      <p className="text-muted-foreground text-center py-4">No completed tasks yet.</p>
+                    ) : (
+                      tasks.filter(task => task.completed).slice(0, 4).map((task) => (
+                        <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted gap-2 sm:gap-0">
+                          <div className="flex items-center space-x-3">
+                            <input 
+                              type="checkbox" 
+                              className="rounded" 
+                              checked={task.completed}
+                              onChange={() => handleToggleTask(task.id, !task.completed)}
+                            />
+                            <div>
+                              <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</p>
+                              <p className="text-sm text-muted-foreground">{task.assignee} • Due: {task.dueDate || 'No due date'}</p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            completed
+                          </Badge>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
                     <Calendar className="h-5 w-5" />
                     <span>Upcoming Activities</span>
                   </CardTitle>
@@ -814,7 +850,7 @@ Family Hub
                   <div className="space-y-3">
                     {upcomingEvents.length > 0 ? (
                       upcomingEvents.map((activity, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                           <div>
                             <p className="font-medium">{activity.activity}</p>
                             <p className="text-sm text-muted-foreground">{activity.date}</p>
@@ -939,7 +975,7 @@ Family Hub
                 <CardContent>
                   <div className="space-y-4">
                     {todaysEvents.map((event, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                         <div className="flex items-center space-x-3">
                           <div className="flex items-center space-x-2">
                             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -1018,7 +1054,7 @@ Family Hub
                       {familyMembers.map((member, index) => (
                         <div key={index} className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                               <User className="h-4 w-4 text-primary" />
                             </div>
                             <div>
@@ -1050,7 +1086,7 @@ Family Hub
                 <div className="space-y-3">
                   {realNotifications.length > 0 ? (
                     realNotifications.slice(0, 3).map((notification) => (
-                      <div key={notification.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                      <div key={notification.id} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                         <div className="flex items-center space-x-3">
                           <div
                             className={`w-2 h-2 rounded-full ${
@@ -1114,7 +1150,7 @@ Family Hub
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background">
         <div className="container flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center space-x-2">
             <Home className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -1526,9 +1562,9 @@ Family Hub
               <h3 className="text-lg font-semibold mb-3">Current Members</h3>
               <div className="space-y-2">
                  {familyMembers.map((member, index) => (
-                   <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                   <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted">
                      <div className="flex items-center space-x-3">
-                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                          <User className="h-5 w-5 text-primary" />
                        </div>
                        <div>

@@ -17,7 +17,8 @@ export function ThemeToggle() {
 
   const themes: { mode: ThemeMode; icon: React.ReactNode; label: string }[] = [
     { mode: 'default', icon: <Sun className="h-4 w-4" />, label: 'Light' },
-    { mode: 'glassmorphism', icon: <Sparkles className="h-4 w-4" />, label: 'Glassmorphism' }
+    { mode: 'glassmorphism', icon: <Sparkles className="h-4 w-4" />, label: 'Glassmorphism' },
+    { mode: 'dark', icon: <Moon className="h-4 w-4" />, label: 'Dark' }
   ]
 
   const currentTheme = themes.find(t => t.mode === theme) || themes[0]

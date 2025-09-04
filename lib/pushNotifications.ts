@@ -120,6 +120,28 @@ class PushNotificationService {
       // Store subscription data locally
       localStorage.setItem('pushSubscription', JSON.stringify(subscriptionData))
 
+      // Send subscription to server
+      try {
+        const response = await fetch('/api/push-notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'subscribe',
+            subscription: subscriptionData
+          })
+        })
+        
+        if (!response.ok) {
+          console.warn('Failed to store subscription on server:', await response.text())
+        } else {
+          console.log('Subscription stored on server successfully')
+        }
+      } catch (error) {
+        console.warn('Failed to send subscription to server:', error)
+      }
+
       console.log('Push subscription successful:', subscriptionData)
       return subscriptionData
     } catch (error) {
@@ -142,8 +164,39 @@ class PushNotificationService {
     try {
       const subscription = await this.serviceWorkerRegistration.pushManager.getSubscription()
       if (subscription) {
+        const subscriptionData = {
+          endpoint: subscription.endpoint,
+          keys: {
+            p256dh: this.arrayBufferToBase64(subscription.getKey('p256dh')!),
+            auth: this.arrayBufferToBase64(subscription.getKey('auth')!)
+          }
+        }
+        
         await subscription.unsubscribe()
         localStorage.removeItem('pushSubscription')
+        
+        // Notify server about unsubscription
+        try {
+          const response = await fetch('/api/push-notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'unsubscribe',
+              subscription: subscriptionData
+            })
+          })
+          
+          if (!response.ok) {
+            console.warn('Failed to remove subscription from server:', await response.text())
+          } else {
+            console.log('Subscription removed from server successfully')
+          }
+        } catch (error) {
+          console.warn('Failed to notify server about unsubscription:', error)
+        }
+        
         console.log('Push unsubscription successful')
         return true
       }
@@ -175,6 +228,33 @@ class PushNotificationService {
     } catch (error) {
       console.error('Failed to get subscription:', error)
       return null
+    }
+  }
+
+  // Send push notification through server
+  async sendPushNotification(payload: PushNotificationPayload): Promise<boolean> {
+    try {
+      const response = await fetch('/api/push-notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'send',
+          payload: payload
+        })
+      })
+      
+      if (!response.ok) {
+        console.error('Failed to send push notification:', await response.text())
+        return false
+      }
+      
+      console.log('Push notification sent successfully')
+      return true
+    } catch (error) {
+      console.error('Error sending push notification:', error)
+      return false
     }
   }
 

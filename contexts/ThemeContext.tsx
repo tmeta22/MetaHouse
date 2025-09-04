@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-export type ThemeMode = 'default' | 'glassmorphism'
+export type ThemeMode = 'default' | 'glassmorphism' | 'dark'
 
 interface ThemeContextType {
   theme: ThemeMode
@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true)
     const savedTheme = localStorage.getItem('family-hub-theme') as ThemeMode
-    if (savedTheme && ['default', 'glassmorphism'].includes(savedTheme)) {
+    if (savedTheme && ['default', 'glassmorphism', 'dark'].includes(savedTheme)) {
       setTheme(savedTheme)
     }
   }, [])
@@ -32,14 +32,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('family-hub-theme', theme)
     
     // Remove all theme classes
-    document.documentElement.classList.remove('theme-default', 'theme-glassmorphism')
+    document.documentElement.classList.remove('theme-default', 'theme-glassmorphism', 'theme-dark')
     
     // Add current theme class
     document.documentElement.classList.add(`theme-${theme}`)
   }, [theme, mounted])
 
   const toggleTheme = () => {
-    const themes: ThemeMode[] = ['default', 'glassmorphism']
+    const themes: ThemeMode[] = ['default', 'glassmorphism', 'dark']
     const currentIndex = themes.indexOf(theme)
     const nextIndex = (currentIndex + 1) % themes.length
     setTheme(themes[nextIndex])

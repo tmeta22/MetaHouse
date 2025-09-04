@@ -76,7 +76,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setMounted(true)
     const savedSettings = localStorage.getItem('notificationSettings')
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings))
+      const parsedSettings = JSON.parse(savedSettings)
+      // Merge with default settings to ensure all properties exist
+      setSettings({ ...defaultSettings, ...parsedSettings })
     }
 
     const savedNotifications = localStorage.getItem('notifications')
@@ -292,9 +294,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const sendPushNotification = async (payload: PushNotificationPayload): Promise<void> => {
     if (settings.enablePushNotifications && isPushSubscribed) {
-      // In a real app, this would send to your server to trigger push notification
-      // For demo purposes, we'll send a local notification
-      await pushNotificationService.sendLocalNotification(payload)
+      // Send through server for real push notifications
+      const success = await pushNotificationService.sendPushNotification(payload)
+      if (!success) {
+        // Fallback to local notification if server push fails
+        await pushNotificationService.sendLocalNotification(payload)
+      }
     } else if (settings.enableBrowserNotifications) {
       // Fallback to local notification
       await pushNotificationService.sendLocalNotification(payload)
