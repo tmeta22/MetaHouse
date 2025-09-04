@@ -21,11 +21,8 @@ function getDatabaseConfig(): DatabaseConfig {
   }
 }
 
-let db: any = null
-
-// Initialize db as a promise for compatibility
-const dbPromise = getDatabase()
-db = dbPromise
+let dbInstance: any = null
+let dbPromise: Promise<any> | null = null
 
 async function createDatabase() {
   const config = getDatabaseConfig()
@@ -45,13 +42,19 @@ async function runMigrations() {
 }
 
 export async function getDatabase() {
-  if (!db) {
-    console.log('Initializing database...')
-    db = await createDatabase()
-    await runMigrations()
-    console.log('Database initialized successfully')
+  if (!dbInstance) {
+    if (!dbPromise) {
+      dbPromise = (async () => {
+        console.log('Initializing database...')
+        const database = await createDatabase()
+        await runMigrations()
+        console.log('Database initialized successfully')
+        return database
+      })()
+    }
+    dbInstance = await dbPromise
   }
-  return db
+  return dbInstance
 }
 
 export async function getDb() {
@@ -62,7 +65,7 @@ export async function initializeDatabase() {
   return getDatabase()
 }
 
-// Export db promise for compatibility
-export { db }
+// Export db promise for compatibility - lazy initialization
+export const db = getDatabase()
 
 export { schema }
