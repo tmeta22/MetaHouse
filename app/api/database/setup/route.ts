@@ -15,19 +15,22 @@ import {
 
 export async function POST() {
   try {
+    // Get the database instance
+    const database = await db
+    
     // Create all tables by running a simple query on each
     // This will create the tables if they don't exist
     await Promise.all([
-      db.select().from(tasks).limit(1).catch(() => null),
-      db.select().from(events).limit(1).catch(() => null),
-      db.select().from(subscriptions).limit(1).catch(() => null),
-      db.select().from(familyMembers).limit(1).catch(() => null),
-      db.select().from(transactions).limit(1).catch(() => null),
-      db.select().from(trips).limit(1).catch(() => null),
-      db.select().from(parties).limit(1).catch(() => null),
-      db.select().from(tripItinerary).limit(1).catch(() => null),
-      db.select().from(partyTasks).limit(1).catch(() => null),
-      db.select().from(participants).limit(1).catch(() => null)
+      database.select().from(tasks).limit(1).catch(() => null),
+      database.select().from(events).limit(1).catch(() => null),
+      database.select().from(subscriptions).limit(1).catch(() => null),
+      database.select().from(familyMembers).limit(1).catch(() => null),
+      database.select().from(transactions).limit(1).catch(() => null),
+      database.select().from(trips).limit(1).catch(() => null),
+      database.select().from(parties).limit(1).catch(() => null),
+      database.select().from(tripItinerary).limit(1).catch(() => null),
+      database.select().from(partyTasks).limit(1).catch(() => null),
+      database.select().from(participants).limit(1).catch(() => null)
     ])
 
     return NextResponse.json({ 

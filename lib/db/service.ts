@@ -24,7 +24,8 @@ function getDatabaseType(): 'sqlite' | 'postgresql' {
 // Task operations
 export class TaskService {
   static async getAll() {
-    return await db.select().from(schema.tasks).orderBy(desc(schema.tasks.createdAt))
+    const database = await db
+    return await database.select().from(schema.tasks).orderBy(desc(schema.tasks.createdAt))
   }
 
   static async create(task: Omit<schema.NewTask, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -35,10 +36,11 @@ export class TaskService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.insert(schema.tasks).values(newTask).returning()
+      return await database.insert(schema.tasks).values(newTask).returning()
     } else {
-      await db.insert(schema.tasks).values(newTask)
+      await database.insert(schema.tasks).values(newTask)
       return [newTask]
     }
   }
@@ -49,23 +51,26 @@ export class TaskService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.update(schema.tasks).set(updateData).where(eq(schema.tasks.id, id)).returning()
+      return await database.update(schema.tasks).set(updateData).where(eq(schema.tasks.id, id)).returning()
     } else {
-      await db.update(schema.tasks).set(updateData).where(eq(schema.tasks.id, id))
-      return await db.select().from(schema.tasks).where(eq(schema.tasks.id, id))
+      await database.update(schema.tasks).set(updateData).where(eq(schema.tasks.id, id))
+      return await database.select().from(schema.tasks).where(eq(schema.tasks.id, id))
     }
   }
 
   static async delete(id: string) {
-    return await db.delete(schema.tasks).where(eq(schema.tasks.id, id))
+    const database = await db
+    return await database.delete(schema.tasks).where(eq(schema.tasks.id, id))
   }
 }
 
 // Event operations
 export class EventService {
   static async getAll() {
-    return await db.select().from(schema.events).orderBy(desc(schema.events.createdAt))
+    const database = await db
+    return await database.select().from(schema.events).orderBy(desc(schema.events.createdAt))
   }
 
   static async create(event: Omit<schema.NewEvent, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -76,10 +81,11 @@ export class EventService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.insert(schema.events).values(newEvent).returning()
+      return await database.insert(schema.events).values(newEvent).returning()
     } else {
-      await db.insert(schema.events).values(newEvent)
+      await database.insert(schema.events).values(newEvent)
       return [newEvent]
     }
   }
@@ -90,23 +96,26 @@ export class EventService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.update(schema.events).set(updateData).where(eq(schema.events.id, id)).returning()
+      return await database.update(schema.events).set(updateData).where(eq(schema.events.id, id)).returning()
     } else {
-      await db.update(schema.events).set(updateData).where(eq(schema.events.id, id))
-      return await db.select().from(schema.events).where(eq(schema.events.id, id))
+      await database.update(schema.events).set(updateData).where(eq(schema.events.id, id))
+      return await database.select().from(schema.events).where(eq(schema.events.id, id))
     }
   }
 
   static async delete(id: string) {
-    return await db.delete(schema.events).where(eq(schema.events.id, id))
+    const database = await db
+    return await database.delete(schema.events).where(eq(schema.events.id, id))
   }
 }
 
 // Subscription operations
 export class SubscriptionService {
   static async getAll() {
-    return await db.select().from(schema.subscriptions).orderBy(desc(schema.subscriptions.createdAt))
+    const database = await db
+    return await database.select().from(schema.subscriptions).orderBy(desc(schema.subscriptions.createdAt))
   }
 
   static async create(subscription: Omit<schema.NewSubscription, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -117,10 +126,11 @@ export class SubscriptionService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.insert(schema.subscriptions).values(newSubscription).returning()
+      return await database.insert(schema.subscriptions).values(newSubscription).returning()
     } else {
-      await db.insert(schema.subscriptions).values(newSubscription)
+      await database.insert(schema.subscriptions).values(newSubscription)
       return [newSubscription]
     }
   }
@@ -131,23 +141,26 @@ export class SubscriptionService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.update(schema.subscriptions).set(updateData).where(eq(schema.subscriptions.id, id)).returning()
+      return await database.update(schema.subscriptions).set(updateData).where(eq(schema.subscriptions.id, id)).returning()
     } else {
-      await db.update(schema.subscriptions).set(updateData).where(eq(schema.subscriptions.id, id))
-      return await db.select().from(schema.subscriptions).where(eq(schema.subscriptions.id, id))
+      await database.update(schema.subscriptions).set(updateData).where(eq(schema.subscriptions.id, id))
+      return await database.select().from(schema.subscriptions).where(eq(schema.subscriptions.id, id))
     }
   }
 
   static async delete(id: string) {
-    return await db.delete(schema.subscriptions).where(eq(schema.subscriptions.id, id))
+    const database = await db
+    return await database.delete(schema.subscriptions).where(eq(schema.subscriptions.id, id))
   }
 }
 
 // Family Member operations
 export class FamilyMemberService {
   static async getAll() {
-    return await db.select().from(schema.familyMembers).orderBy(desc(schema.familyMembers.createdAt))
+    const database = await db
+    return await database.select().from(schema.familyMembers).orderBy(desc(schema.familyMembers.createdAt))
   }
 
   static async create(member: Omit<schema.NewFamilyMember, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -158,10 +171,11 @@ export class FamilyMemberService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.insert(schema.familyMembers).values(newMember).returning()
+      return await database.insert(schema.familyMembers).values(newMember).returning()
     } else {
-      await db.insert(schema.familyMembers).values(newMember)
+      await database.insert(schema.familyMembers).values(newMember)
       return [newMember]
     }
   }
@@ -172,23 +186,26 @@ export class FamilyMemberService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.update(schema.familyMembers).set(updateData).where(eq(schema.familyMembers.id, id)).returning()
+      return await database.update(schema.familyMembers).set(updateData).where(eq(schema.familyMembers.id, id)).returning()
     } else {
-      await db.update(schema.familyMembers).set(updateData).where(eq(schema.familyMembers.id, id))
-      return await db.select().from(schema.familyMembers).where(eq(schema.familyMembers.id, id))
+      await database.update(schema.familyMembers).set(updateData).where(eq(schema.familyMembers.id, id))
+      return await database.select().from(schema.familyMembers).where(eq(schema.familyMembers.id, id))
     }
   }
 
   static async delete(id: string) {
-    return await db.delete(schema.familyMembers).where(eq(schema.familyMembers.id, id))
+    const database = await db
+    return await database.delete(schema.familyMembers).where(eq(schema.familyMembers.id, id))
   }
 }
 
 // Transaction operations
 export class TransactionService {
   static async getAll() {
-    return await db.select().from(schema.transactions).orderBy(desc(schema.transactions.createdAt))
+    const database = await db
+    return await database.select().from(schema.transactions).orderBy(desc(schema.transactions.createdAt))
   }
 
   static async create(transaction: Omit<schema.NewTransaction, 'id' | 'createdAt' | 'updatedAt'>) {
@@ -199,10 +216,11 @@ export class TransactionService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.insert(schema.transactions).values(newTransaction).returning()
+      return await database.insert(schema.transactions).values(newTransaction).returning()
     } else {
-      await db.insert(schema.transactions).values(newTransaction)
+      await database.insert(schema.transactions).values(newTransaction)
       return [newTransaction]
     }
   }
@@ -213,16 +231,18 @@ export class TransactionService {
       updatedAt: new Date().toISOString()
     }
     
+    const database = await db
     if (getDatabaseType() === 'sqlite') {
-      return await db.update(schema.transactions).set(updateData).where(eq(schema.transactions.id, id)).returning()
+      return await database.update(schema.transactions).set(updateData).where(eq(schema.transactions.id, id)).returning()
     } else {
-      await db.update(schema.transactions).set(updateData).where(eq(schema.transactions.id, id))
-      return await db.select().from(schema.transactions).where(eq(schema.transactions.id, id))
+      await database.update(schema.transactions).set(updateData).where(eq(schema.transactions.id, id))
+      return await database.select().from(schema.transactions).where(eq(schema.transactions.id, id))
     }
   }
 
   static async delete(id: string) {
-    return await db.delete(schema.transactions).where(eq(schema.transactions.id, id))
+    const database = await db
+    return await database.delete(schema.transactions).where(eq(schema.transactions.id, id))
   }
 }
 

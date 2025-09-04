@@ -4,18 +4,21 @@ import * as schema from '../../../../lib/db/schema'
 
 export async function POST(request: NextRequest) {
   try {
+    // Get the database instance
+    const database = await db
+    
     // Delete all data from each table using drizzle ORM
     const deleteOperations = [
-      db.delete(schema.tasks),
-      db.delete(schema.events), 
-      db.delete(schema.subscriptions),
-      db.delete(schema.familyMembers),
-      db.delete(schema.transactions),
-      db.delete(schema.trips),
-      db.delete(schema.parties),
-      db.delete(schema.tripItinerary),
-      db.delete(schema.partyTasks),
-      db.delete(schema.participants)
+      database.delete(schema.tasks),
+      database.delete(schema.events), 
+      database.delete(schema.subscriptions),
+      database.delete(schema.familyMembers),
+      database.delete(schema.transactions),
+      database.delete(schema.trips),
+      database.delete(schema.parties),
+      database.delete(schema.tripItinerary),
+      database.delete(schema.partyTasks),
+      database.delete(schema.participants)
     ]
     
     // Execute all delete operations

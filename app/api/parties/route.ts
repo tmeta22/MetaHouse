@@ -5,7 +5,8 @@ import { eq, desc } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const allParties = await db.select().from(parties).orderBy(desc(parties.createdAt))
+    const database = await db
+    const allParties = await database.select().from(parties).orderBy(desc(parties.createdAt))
     return NextResponse.json(allParties)
   } catch (error) {
     console.error('Error fetching parties:', error)
@@ -41,7 +42,8 @@ export async function POST(request: NextRequest) {
       status: 'planning' as const
     }
 
-    await db.insert(parties).values(newParty)
+    const database = await db
+    await database.insert(parties).values(newParty)
     return NextResponse.json(newParty, { status: 201 })
   } catch (error) {
     console.error('Error creating party:', error)
@@ -58,11 +60,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Party ID is required' }, { status: 400 })
     }
 
-    await db.update(parties)
+    const database = await db
+    await database.update(parties)
       .set({ ...updateData, updatedAt: new Date().toISOString() })
       .where(eq(parties.id, id))
 
-    const updatedParty = await db.select().from(parties).where(eq(parties.id, id))
+    const updatedParty = await database.select().from(parties).where(eq(parties.id, id))
     return NextResponse.json(updatedParty[0])
   } catch (error) {
     console.error('Error updating party:', error)
@@ -79,10 +82,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Party ID is required' }, { status: 400 })
     }
 
+    const database = await db
     // Delete related data first
-    await db.delete(partyTasks).where(eq(partyTasks.partyId, id))
-    await db.delete(participants).where(eq(participants.eventId, id))
-    await db.delete(parties).where(eq(parties.id, id))
+    await database.delete(partyTasks).where(eq(partyTasks.partyId, id))
+    await database.delete(participants).where(eq(participants.eventId, id))
+    await database.delete(parties).where(eq(parties.id, id))
 
     return NextResponse.json({ success: true })
   } catch (error) {

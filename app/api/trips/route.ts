@@ -5,7 +5,8 @@ import { eq, desc } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const allTrips = await db.select().from(trips).orderBy(desc(trips.createdAt))
+    const database = await db
+    const allTrips = await database.select().from(trips).orderBy(desc(trips.createdAt))
     return NextResponse.json(allTrips)
   } catch (error) {
     console.error('Error fetching trips:', error)
@@ -39,7 +40,8 @@ export async function POST(request: NextRequest) {
       status: 'planning' as const
     }
 
-    await db.insert(trips).values(newTrip)
+    const database = await db
+    await database.insert(trips).values(newTrip)
     return NextResponse.json(newTrip, { status: 201 })
   } catch (error) {
     console.error('Error creating trip:', error)
@@ -56,11 +58,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Trip ID is required' }, { status: 400 })
     }
 
-    await db.update(trips)
+    const database = await db
+    await database.update(trips)
       .set({ ...updateData, updatedAt: new Date().toISOString() })
       .where(eq(trips.id, id))
 
-    const updatedTrip = await db.select().from(trips).where(eq(trips.id, id))
+    const updatedTrip = await database.select().from(trips).where(eq(trips.id, id))
     return NextResponse.json(updatedTrip[0])
   } catch (error) {
     console.error('Error updating trip:', error)
@@ -77,10 +80,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Trip ID is required' }, { status: 400 })
     }
 
+    const database = await db
     // Delete related data first
-    await db.delete(tripItinerary).where(eq(tripItinerary.tripId, id))
-    await db.delete(participants).where(eq(participants.eventId, id))
-    await db.delete(trips).where(eq(trips.id, id))
+    await database.delete(tripItinerary).where(eq(tripItinerary.tripId, id))
+    await database.delete(participants).where(eq(participants.eventId, id))
+    await database.delete(trips).where(eq(trips.id, id))
 
     return NextResponse.json({ success: true })
   } catch (error) {

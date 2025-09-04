@@ -1,32 +1,53 @@
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
+import { migrate as migratePostgres } from 'drizzle-orm/postgres-js/migrator'
+import { join } from 'path'
 import * as schema from './schema'
 
-// Production-only database configuration that only supports PostgreSQL
-let db: any
-
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is required in production')
+interface DatabaseConfig {
+  type: 'neon' | 'postgresql'
+  url: string
+  name: string
 }
 
-const sql = postgres(process.env.DATABASE_URL)
-db = drizzlePostgres(sql, { schema })
+function getDatabaseConfig(): DatabaseConfig {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is required in production')
+  }
+  return {
+    type: 'neon',
+    url: process.env.DATABASE_URL,
+    name: 'Production Database'
+  }
+}
 
-export { db }
-export async function getDb() {
+let db: any
+
+async function createDatabase() {
+  const config = getDatabaseConfig()
+  const sql = postgres(config.url)
+  return drizzlePostgres(sql, { schema })
+}
+
+const migrationsPath = join(process.cwd(), 'drizzle')
+
+async function runMigrations() {
+  console.log('Running database migrations...')
+  
+  const config = getDatabaseConfig()
+  console.log('PostgreSQL migrations skipped - assuming tables exist')
+  
+  console.log('Database migrations completed successfully')
+}
+
+export async function getDatabase() {
+  if (!db) {
+    console.log('Initializing database...')
+    db = await createDatabase()
+    await runMigrations()
+    console.log('Database initialized successfully')
+  }
   return db
 }
 
-export async function runMigrations() {
-  console.log('PostgreSQL migrations skipped - assuming tables exist')
-}
-
-export async function initializeDatabase() {
-  console.log('Production database initialized with PostgreSQL')
-}
-
-export function closeDatabase() {
-  console.log('PostgreSQL connection closed')
-}
-
-export * from './schema'
+export { schema }

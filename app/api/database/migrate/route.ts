@@ -8,6 +8,9 @@ export async function POST() {
   try {
     console.log('Starting migration to create planning tables...')
     
+    // Get the database instance
+    const database = await db
+    
     // Create tables directly using SQL
     const tables = [
       {
@@ -93,7 +96,7 @@ export async function POST() {
     for (const table of tables) {
       try {
         console.log(`Creating table: ${table.name}`)
-        await db.execute(sql.raw(table.sql))
+        await database.execute(sql.raw(table.sql))
         console.log(`✓ Table ${table.name} created successfully`)
         createdTables++
       } catch (error) {
