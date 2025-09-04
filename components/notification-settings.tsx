@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Bell, CheckCircle, Calendar, Users, DollarSign } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useNotifications } from '@/contexts/NotificationContext'
 
 interface NotificationSettings {
   taskReminders: boolean
@@ -31,6 +32,13 @@ export function NotificationSettings() {
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
+  const { 
+    requestPermission, 
+    subscribeToPush, 
+    unsubscribeFromPush, 
+    isPushSupported, 
+    isPushSubscribed 
+  } = useNotifications()
 
   useEffect(() => {
     setMounted(true)
@@ -45,8 +53,57 @@ export function NotificationSettings() {
     }
   }, [])
 
-  const handleSettingChange = (key: keyof NotificationSettings, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }))
+  const handleSettingChange = async (key: keyof NotificationSettings, value: boolean) => {
+    if (key === 'pushNotifications') {
+      await handlePushNotificationToggle(value)
+    } else {
+      setSettings(prev => ({ ...prev, [key]: value }))
+    }
+  }
+
+  const handlePushNotificationToggle = async (enable: boolean) => {
+    if (enable) {
+      // Request browser notification permission first
+      const permissionGranted = await requestPermission()
+      if (!permissionGranted) {
+        toast({
+          title: "Permission denied",
+          description: "Please allow notifications in your browser settings to enable push notifications.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Subscribe to push notifications
+      const subscribed = await subscribeToPush()
+      if (subscribed) {
+        setSettings(prev => ({ ...prev, pushNotifications: true }))
+        toast({
+          title: "Push notifications enabled",
+          description: "You will now receive push notifications from Family Hub.",
+        })
+      } else {
+        // Check if we're in localhost environment for better error message
+        const isLocalhost = window.location.protocol === 'http:' && window.location.hostname === 'localhost'
+        toast({
+          title: "Push notifications not available",
+          description: isLocalhost 
+            ? "Push notifications require HTTPS and are not available in localhost development. They will work in production."
+            : "There was an error setting up push notifications. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // Unsubscribe from push notifications
+      const unsubscribed = await unsubscribeFromPush()
+      if (unsubscribed) {
+        setSettings(prev => ({ ...prev, pushNotifications: false }))
+        toast({
+          title: "Push notifications disabled",
+          description: "You will no longer receive push notifications.",
+        })
+      }
+    }
   }
 
   const saveSettings = async () => {
@@ -196,13 +253,16 @@ export function NotificationSettings() {
                   Push Notifications
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Receive notifications directly in your browser
+                  {isPushSupported 
+                    ? "Receive notifications directly in your browser" 
+                    : "Push notifications are not supported in this browser"}
                 </p>
               </div>
               <Switch
                 id="push-notifications"
-                checked={settings.pushNotifications}
+                checked={isPushSubscribed}
                 onCheckedChange={(checked) => handleSettingChange('pushNotifications', checked)}
+                disabled={!isPushSupported}
               />
             </div>
 

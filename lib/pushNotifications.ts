@@ -123,7 +123,12 @@ class PushNotificationService {
       console.log('Push subscription successful:', subscriptionData)
       return subscriptionData
     } catch (error) {
-      console.error('Push subscription failed:', error)
+      // Check if this is the common localhost/HTTPS issue
+      if (error instanceof Error && error.name === 'AbortError' && error.message.includes('push service not available')) {
+        console.warn('Push notifications are not available in this environment. This is normal for localhost development. Push notifications require HTTPS and will work in production.')
+      } else {
+        console.error('Push subscription failed:', error)
+      }
       return null
     }
   }

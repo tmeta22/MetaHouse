@@ -1584,8 +1584,10 @@ Family Hub
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Parent">Parent</SelectItem>
-                        <SelectItem value="Child">Child</SelectItem>
+                        <SelectItem value="Mother">Mother</SelectItem>
+                        <SelectItem value="Father">Father</SelectItem>
+                        <SelectItem value="Son">Son</SelectItem>
+                        <SelectItem value="Daughter">Daughter</SelectItem>
                         <SelectItem value="Guardian">Guardian</SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
@@ -1656,8 +1658,10 @@ Family Hub
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Parent">Parent</SelectItem>
-                  <SelectItem value="Child">Child</SelectItem>
+                  <SelectItem value="Mother">Mother</SelectItem>
+                  <SelectItem value="Father">Father</SelectItem>
+                  <SelectItem value="Son">Son</SelectItem>
+                  <SelectItem value="Daughter">Daughter</SelectItem>
                   <SelectItem value="Guardian">Guardian</SelectItem>
                   <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>

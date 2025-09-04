@@ -258,16 +258,27 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       return false
     }
 
-    const subscription = await pushNotificationService.subscribe()
-    const success = !!subscription
-    setIsPushSubscribed(success)
-    
-    if (success) {
-      // Update settings to enable push notifications
-      updateSettings({ enablePushNotifications: true })
+    try {
+      const subscription = await pushNotificationService.subscribe()
+      const success = !!subscription
+      setIsPushSubscribed(success)
+      
+      if (success) {
+        // Update settings to enable push notifications
+        updateSettings({ enablePushNotifications: true })
+      } else {
+        // Check if we're in localhost environment
+        if (window.location.protocol === 'http:' && window.location.hostname === 'localhost') {
+          console.info('Push notifications are not available in localhost development. They will work in production with HTTPS.')
+        }
+      }
+      
+      return success
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error)
+      setIsPushSubscribed(false)
+      return false
     }
-    
-    return success
   }
 
   const unsubscribeFromPush = async (): Promise<boolean> => {
