@@ -2,7 +2,7 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "buildCommand": "pnpm run build:prod",
+  "buildCommand": "pnpm run build:vercel",
   "build": {
     "env": {
       "NODE_ENV": "production"

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "next build",
     "build:prod": "NODE_ENV=production next build",
+    "build:vercel": "npm pkg delete optionalDependencies && NODE_ENV=production next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
