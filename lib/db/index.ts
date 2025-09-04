@@ -46,6 +46,10 @@ async function createDatabase() {
   const config = getDatabaseConfig()
   
   if (config.type === 'sqlite') {
+    // Only import SQLite in non-production environments
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('SQLite not supported in production environment')
+    }
     // Dynamic import for SQLite to avoid issues in serverless environments
     const { drizzle } = await import('drizzle-orm/better-sqlite3')
     const Database = (await import('better-sqlite3')).default
@@ -96,6 +100,11 @@ export async function runMigrations() {
   try {
     console.log('Running database migrations...')
     if (config.type === 'sqlite') {
+      // Only run SQLite migrations in non-production environments
+      if (process.env.NODE_ENV === 'production') {
+        console.log('SQLite migrations skipped in production')
+        return
+      }
       // Dynamic import for SQLite migrations
       const { migrate } = await import('drizzle-orm/better-sqlite3/migrator')
       if (!db) {
