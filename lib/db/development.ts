@@ -72,14 +72,15 @@ const migrationsPath = join(process.cwd(), 'drizzle')
 
 // Initialize database
 let dbPromise: Promise<any>
-if (process.env.DATABASE_URL) {
-  // With DATABASE_URL, use PostgreSQL directly
-  const sql = postgres(process.env.DATABASE_URL)
-  db = drizzlePostgres(sql, { schema })
-} else {
-  // For development or when no DATABASE_URL is set
+const config = getDatabaseConfig()
+if (config.type === 'sqlite') {
+  // For SQLite, use async initialization
   dbPromise = createDatabase()
   db = null // Will be set after async initialization
+} else {
+  // For PostgreSQL/Neon, initialize directly
+  const sql = postgres(config.url)
+  db = drizzlePostgres(sql, { schema })
 }
 
 // Helper function to get database instance

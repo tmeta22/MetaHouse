@@ -1,4 +1,4 @@
-import { db } from './index'
+import { getDb } from './index'
 import * as schema from './schema'
 import { eq, desc } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
@@ -24,7 +24,7 @@ function getDatabaseType(): 'sqlite' | 'postgresql' {
 // Task operations
 export class TaskService {
   static async getAll() {
-    const database = await db
+    const database = await getDb()
     return await database.select().from(schema.tasks).orderBy(desc(schema.tasks.createdAt))
   }
 
@@ -36,7 +36,7 @@ export class TaskService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.insert(schema.tasks).values(newTask).returning()
     } else {
@@ -51,7 +51,7 @@ export class TaskService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.update(schema.tasks).set(updateData).where(eq(schema.tasks.id, id)).returning()
     } else {
@@ -61,7 +61,7 @@ export class TaskService {
   }
 
   static async delete(id: string) {
-    const database = await db
+    const database = await getDb()
     return await database.delete(schema.tasks).where(eq(schema.tasks.id, id))
   }
 }
@@ -69,7 +69,7 @@ export class TaskService {
 // Event operations
 export class EventService {
   static async getAll() {
-    const database = await db
+    const database = await getDb()
     return await database.select().from(schema.events).orderBy(desc(schema.events.createdAt))
   }
 
@@ -81,7 +81,7 @@ export class EventService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.insert(schema.events).values(newEvent).returning()
     } else {
@@ -96,7 +96,7 @@ export class EventService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.update(schema.events).set(updateData).where(eq(schema.events.id, id)).returning()
     } else {
@@ -106,7 +106,7 @@ export class EventService {
   }
 
   static async delete(id: string) {
-    const database = await db
+    const database = await getDb()
     return await database.delete(schema.events).where(eq(schema.events.id, id))
   }
 }
@@ -114,7 +114,7 @@ export class EventService {
 // Subscription operations
 export class SubscriptionService {
   static async getAll() {
-    const database = await db
+    const database = await getDb()
     return await database.select().from(schema.subscriptions).orderBy(desc(schema.subscriptions.createdAt))
   }
 
@@ -126,7 +126,7 @@ export class SubscriptionService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.insert(schema.subscriptions).values(newSubscription).returning()
     } else {
@@ -141,7 +141,7 @@ export class SubscriptionService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.update(schema.subscriptions).set(updateData).where(eq(schema.subscriptions.id, id)).returning()
     } else {
@@ -151,7 +151,7 @@ export class SubscriptionService {
   }
 
   static async delete(id: string) {
-    const database = await db
+    const database = await getDb()
     return await database.delete(schema.subscriptions).where(eq(schema.subscriptions.id, id))
   }
 }
@@ -159,7 +159,7 @@ export class SubscriptionService {
 // Family Member operations
 export class FamilyMemberService {
   static async getAll() {
-    const database = await db
+    const database = await getDb()
     return await database.select().from(schema.familyMembers).orderBy(desc(schema.familyMembers.createdAt))
   }
 
@@ -171,7 +171,7 @@ export class FamilyMemberService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.insert(schema.familyMembers).values(newMember).returning()
     } else {
@@ -186,7 +186,7 @@ export class FamilyMemberService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.update(schema.familyMembers).set(updateData).where(eq(schema.familyMembers.id, id)).returning()
     } else {
@@ -196,7 +196,7 @@ export class FamilyMemberService {
   }
 
   static async delete(id: string) {
-    const database = await db
+    const database = await getDb()
     return await database.delete(schema.familyMembers).where(eq(schema.familyMembers.id, id))
   }
 }
@@ -204,7 +204,7 @@ export class FamilyMemberService {
 // Transaction operations
 export class TransactionService {
   static async getAll() {
-    const database = await db
+    const database = await getDb()
     return await database.select().from(schema.transactions).orderBy(desc(schema.transactions.createdAt))
   }
 
@@ -216,7 +216,7 @@ export class TransactionService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.insert(schema.transactions).values(newTransaction).returning()
     } else {
@@ -231,7 +231,7 @@ export class TransactionService {
       updatedAt: new Date().toISOString()
     }
     
-    const database = await db
+    const database = await getDb()
     if (getDatabaseType() === 'sqlite') {
       return await database.update(schema.transactions).set(updateData).where(eq(schema.transactions.id, id)).returning()
     } else {
@@ -241,7 +241,7 @@ export class TransactionService {
   }
 
   static async delete(id: string) {
-    const database = await db
+    const database = await getDb()
     return await database.delete(schema.transactions).where(eq(schema.transactions.id, id))
   }
 }
