@@ -11,13 +11,28 @@ interface DatabaseConfig {
 }
 
 function getDatabaseConfig(): DatabaseConfig {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is required in production')
+  // Try environment variable first, then fall back to config file
+  if (process.env.DATABASE_URL) {
+    return {
+      type: 'neon',
+      url: process.env.DATABASE_URL,
+      name: 'Production Database'
+    }
   }
-  return {
-    type: 'neon',
-    url: process.env.DATABASE_URL,
-    name: 'Production Database'
+  
+  // Fall back to configuration file
+  try {
+    const fs = require('fs')
+    const path = require('path')
+    const configPath = path.join(process.cwd(), 'database-config.production.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    return {
+      type: config.type as 'neon' | 'postgresql',
+      url: config.url,
+      name: config.name
+    }
+  } catch (error) {
+    throw new Error('DATABASE_URL environment variable or database-config.production.json is required in production')
   }
 }
 
