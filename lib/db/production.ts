@@ -21,7 +21,11 @@ function getDatabaseConfig(): DatabaseConfig {
   }
 }
 
-let db: any
+let db: any = null
+
+// Initialize db as a promise for compatibility
+const dbPromise = getDatabase()
+db = dbPromise
 
 async function createDatabase() {
   const config = getDatabaseConfig()
@@ -59,6 +63,6 @@ export async function initializeDatabase() {
 }
 
 // Export db promise for compatibility
-export const db = getDatabase()
+export { db }
 
 export { schema }
