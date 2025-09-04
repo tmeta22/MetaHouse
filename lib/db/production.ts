@@ -66,6 +66,9 @@ export async function initializeDatabase() {
 }
 
 // Export db as a promise that resolves at runtime
-export const db = Promise.resolve().then(() => getDatabase())
+// Skip database initialization during build time
+export const db = process.env.SKIP_DB_INIT === 'true' 
+  ? Promise.resolve(null) 
+  : Promise.resolve().then(() => getDatabase())
 
 export { schema }

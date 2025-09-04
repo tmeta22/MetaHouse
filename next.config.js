@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['better-sqlite3'],
+  env: {
+    SKIP_DB_INIT: process.env.NODE_ENV === 'production' ? 'true' : 'false'
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('better-sqlite3')
