@@ -50,4 +50,15 @@ export async function getDatabase() {
   return db
 }
 
+export async function getDb() {
+  return getDatabase()
+}
+
+export async function initializeDatabase() {
+  return getDatabase()
+}
+
+// Export db promise for compatibility
+export const db = getDatabase()
+
 export { schema }
