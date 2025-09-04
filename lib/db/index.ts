@@ -1,8 +1,5 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js'
-import Database from 'better-sqlite3'
 import postgres from 'postgres'
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { migrate as migratePostgres } from 'drizzle-orm/postgres-js/migrator'
 import { join } from 'path'
 import { readFileSync, existsSync } from 'fs'
@@ -45,10 +42,13 @@ function getDatabaseConfig(): DatabaseConfig {
 
 let db: any
 
-function createDatabase() {
+async function createDatabase() {
   const config = getDatabaseConfig()
   
   if (config.type === 'sqlite') {
+    // Dynamic import for SQLite to avoid issues in serverless environments
+    const { drizzle } = await import('drizzle-orm/better-sqlite3')
+    const Database = (await import('better-sqlite3')).default
     const dbPath = config.url.replace('file:', '') || join(process.cwd(), 'family-hub.db')
     const sqlite = new Database(dbPath)
     sqlite.pragma('journal_mode = WAL')
@@ -63,7 +63,28 @@ function createDatabase() {
 const migrationsPath = join(process.cwd(), 'drizzle')
 
 // Initialize database
-db = createDatabase()
+let dbPromise: Promise<any>
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  // In production with DATABASE_URL, use PostgreSQL directly
+  const sql = postgres(process.env.DATABASE_URL)
+  db = drizzlePostgres(sql, { schema })
+} else {
+  // For development or when no DATABASE_URL is set
+  dbPromise = createDatabase()
+  db = null // Will be set after async initialization
+}
+
+// Helper function to get database instance
+export async function getDb() {
+  if (db) {
+    return db
+  }
+  if (dbPromise) {
+    db = await dbPromise
+    return db
+  }
+  throw new Error('Database not initialized')
+}
 
 // Export database instance
 export { db }
@@ -75,6 +96,11 @@ export async function runMigrations() {
   try {
     console.log('Running database migrations...')
     if (config.type === 'sqlite') {
+      // Dynamic import for SQLite migrations
+      const { migrate } = await import('drizzle-orm/better-sqlite3/migrator')
+      if (!db) {
+        db = await dbPromise
+      }
       migrate(db as any, { migrationsFolder: migrationsPath })
     } else {
       // For PostgreSQL/Neon, skip migrations for now as tables should already exist
