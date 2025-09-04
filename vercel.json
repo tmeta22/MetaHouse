@@ -1,13 +1,13 @@
 {
   "env": {
     "NODE_ENV": "production",
-    "DATABASE_URL": "postgresql://neondb_owner:npg_0foB1PiVRHtZ@ep-purple-dew-addz46c5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    "DATABASE_URL": "$DATABASE_URL"
   },
   "buildCommand": "pnpm run build:vercel",
   "build": {
     "env": {
       "NODE_ENV": "production",
-      "DATABASE_URL": "postgresql://neondb_owner:npg_0foB1PiVRHtZ@ep-purple-dew-addz46c5-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+      "DATABASE_URL": "$DATABASE_URL"
     }
   },
   "headers": [
