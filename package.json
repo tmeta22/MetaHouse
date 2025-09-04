@@ -5,6 +5,7 @@
   "description": "A comprehensive family management hub for organizing schedules, tracking subscriptions, and managing family activities",
   "scripts": {
     "build": "next build",
+    "build:prod": "NODE_ENV=production next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
