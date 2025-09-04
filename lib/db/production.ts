@@ -65,7 +65,7 @@ export async function initializeDatabase() {
   return getDatabase()
 }
 
-// Export db promise for compatibility - lazy initialization
-export const db = getDatabase()
+// Export db as a promise that resolves at runtime
+export const db = Promise.resolve().then(() => getDatabase())
 
 export { schema }
